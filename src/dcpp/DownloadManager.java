@@ -116,11 +116,13 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
             int next = getNextChunk();
             if (next == -1)
                 return;
-            int len = toRead > chunkSize ? chunkSize : toRead;
+            int len = (next + chunkSize > length) ? (length - next) : chunkSize;
             PeerConnection peer = getPeer();
             if (peer == null)
                 return;
-            chunks.add(new Chunk(peer, next, len));
+            Chunk chunk = new Chunk(peer, next, len);
+            chunks.add(chunk);
+            logger.debug("requesting " + chunk);
             peer.adcGet(tth, next, len);
         }
     }
