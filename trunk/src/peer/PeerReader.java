@@ -4,21 +4,18 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.HashSet;
 import java.util.Set;
-import logger.ILogger;
 import util.ArrayUtils;
 
 class PeerReader {
 
-    private ILogger logger;
     private SocketChannel in;
     private byte[] buffer = new byte[0];
     private Set<IPeerHandler> handlers = new HashSet();
     private int expectData;
     private ByteBuffer bb = ByteBuffer.allocate(1024*1024);
 
-    public PeerReader(SocketChannel in, ILogger logger) {
+    public PeerReader(SocketChannel in) {
         this.in = in;
-        this.logger = logger;
         this.expectData = 0;
     }
 
@@ -65,20 +62,14 @@ class PeerReader {
             byte[] data = readData();
             if (data == null)
                 return;
-            logger.debug("received " + data.length + " bytes");
             for (IPeerHandler handler : handlers)
                 handler.handlePeerData(data);
         } else {
             byte[] data = readCommand();
             if (data == null)
                 return;
-            logger.debug("received peer command: " + new String(data));
-            boolean handled = false;
             for (IPeerHandler handler : handlers)
-                if (handler.handlePeerCommand(data))
-                    handled = true;
-            if (!handled)
-                logger.warn("unhandled command : " + new String(data));
+                handler.handlePeerCommand(data);
         }
     }
 

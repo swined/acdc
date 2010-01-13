@@ -14,12 +14,11 @@ class KeyHandler implements IPeerHandler {
 
     }
 
-    public boolean handlePeerCommand(byte[] data) throws Exception {
+    public void handlePeerCommand(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$Key "))
-            return false;
+            return;
         conn.onKeyReceived();
-        return true;
     }
 
 }

@@ -13,12 +13,11 @@ class SupportsHandler implements IPeerHandler {
     public void handlePeerData(byte[] data) throws Exception {
     }
 
-    public boolean handlePeerCommand(byte[] data) throws Exception {
+    public void handlePeerCommand(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$Supports "))
-            return false;
+            return;
         handler.onSupportsReceived(conn, s.split(" ", 2)[1].split(" "));
-        return true;
     }
 
 }

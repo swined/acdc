@@ -14,12 +14,11 @@ class MyNickHandler implements IPeerHandler {
 
     }
 
-    public boolean handlePeerCommand(byte[] data) throws Exception {
+    public void handlePeerCommand(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$MyNick "))
-            return false;
+            return;
         conn.onPeerNickReceived(s.split(" ")[1]);
-        return true;
     }
 
 }

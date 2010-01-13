@@ -14,12 +14,11 @@ class ErrorHandler implements IPeerHandler {
 
     }
 
-    public boolean handlePeerCommand(byte[] data) throws Exception {
+    public void handlePeerCommand(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$Error "))
-            return false;
+            return;
         handler.onPeerError(conn, s.split(" ", 2)[1]);
-        return true;
     }
 
 }

@@ -14,13 +14,12 @@ class AdcSndHandler implements IPeerHandler {
 
     }
 
-    public boolean handlePeerCommand(byte[] data) throws Exception {
+    public void handlePeerCommand(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$ADCSND "))
-            return false;
+            return;
         String f[] = s.split(" ");
         conn.onAdcSndReceived(new Integer(f[3]), new Integer(f[4]));
-        return true;
     }
 
 }
