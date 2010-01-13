@@ -2,6 +2,7 @@ package util;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,8 +36,8 @@ public class DCReader {
         readStream();
         int ix = ArrayUtils.indexOf(buffer, (byte)0x7C); // |
         if (ix != -1) {
-            byte[] b = ArrayUtils.sub(buffer, 0, ix - 1);
-            buffer = ArrayUtils.sub(buffer, ix + 1, buffer.length - 1);
+            byte[] b = Arrays.copyOfRange(buffer, 0, ix);
+            buffer = Arrays.copyOfRange(buffer, ix + 1, buffer.length);
             return b;
         }
         return null;
@@ -45,8 +46,8 @@ public class DCReader {
     private byte[] readData() throws Exception {
         readStream();
         if (buffer.length >= expectData) {
-            byte[] b = ArrayUtils.sub(buffer, 0, expectData - 1);
-            buffer = ArrayUtils.sub(buffer, expectData, buffer.length - 1);
+            byte[] b = Arrays.copyOfRange(buffer, 0, expectData);
+            buffer = Arrays.copyOfRange(buffer, expectData, buffer.length);
             expectData = 0;
             return b;
         }

@@ -11,9 +11,9 @@ public class Main {
             "p2p.academ.org",
             //"dcpp.nsunet.ru",
             "411",
-            "STMUNEWY73LI5KQCVMLWXDMGXZKD76GPJ3M6EQA", // battery
+            //"STMUNEWY73LI5KQCVMLWXDMGXZKD76GPJ3M6EQA", // battery
             //"YVWQRDZ4KUJSIAG5WFIRJ3L6Z5KZ7ACXEV37QPA", // dest point 3
-            //"OHD4ZFEBI6XAUND2I7LOFCEW74EUZGVVGSAVFPQ", // 12 oz ms
+            "OHD4ZFEBI6XAUND2I7LOFCEW74EUZGVVGSAVFPQ", // 12 oz ms
             //"VB22K37AAHT65QLUVVS7SYUYURLS75UQEBNYVMI",
             //"I323N3GKWK3G2YDMQBNIIOKKU522MGQJ4VVTN7Q",
             //"BHBJUM22KY5UJFYIN4NZS37KXCGKQXUG2F23IMI",
@@ -27,6 +27,7 @@ public class Main {
             logger.debug("done");
         } catch (Exception e) {
             logger.error(e.getMessage());
+            e.printStackTrace();
         }
     }
 

@@ -16,7 +16,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
 
     private final int searchPeriod = 60000;
     private final int chunkSize = 1024 * 1024;
-    private final int chunkTimeout = 60000;
+    private final int chunkTimeout = 3600 * 1000;
 
     private final int maxChunks = 100 * 1024 * 1024 / chunkSize;
     private final String nick = generateNick();

@@ -1,6 +1,7 @@
 package util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ArrayUtils {
@@ -25,13 +26,6 @@ public class ArrayUtils {
         return -1;
     }
 
-    public static byte[] sub(byte[] a, int s, int e) {
-        byte[] b = new byte[e - s + 1];
-        for (int i = s; i <= e; i++)
-            b[i - s] = a[i];
-        return b;
-    }
-
     public static byte[][] split(byte[] a, byte b) {
         return split(a, b, 0);
     }
@@ -45,8 +39,8 @@ public class ArrayUtils {
                 break;
             }
             int ix = indexOf(t, b);
-            byte[] s = sub(t, 0, ix - 1);
-            t = sub(t, ix + 1, t.length - 1);
+            byte[] s = Arrays.copyOfRange(t, 0, ix);
+            t = Arrays.copyOfRange(t, ix + 1, t.length);
             r.add(s);
         }
         byte[][] br = new byte[r.size()][];
