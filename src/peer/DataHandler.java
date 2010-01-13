@@ -14,8 +14,7 @@ class DataHandler implements IPeerHandler {
         handler.onPeerData(conn, data);
     }
 
-    public boolean handlePeerCommand(byte[] data) throws Exception {
-        return false;
+    public void handlePeerCommand(byte[] data) throws Exception {
     }
 
 }

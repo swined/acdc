@@ -27,7 +27,8 @@ public class PeerConnection {
         SocketChannel channel = SocketChannel.open(new InetSocketAddress(ip, port));
         channel.configureBlocking(false);
         writer = new PeerWriter(channel, logger);
-        reader = new PeerReader(channel, logger);
+        reader = new PeerReader(channel);
+        reader.registerHandler(new LoggingHandler(logger));
         reader.registerHandler(new MyNickHandler(handler, this));
         reader.registerHandler(new LockHandler(this));
         reader.registerHandler(new DirectionHandler(handler, this));

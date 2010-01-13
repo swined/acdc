@@ -12,15 +12,14 @@ class LockHandler implements IPeerHandler {
         
     }
 
-    public boolean handlePeerCommand(byte[] data) throws Exception {
+    public void handlePeerCommand(byte[] data) throws Exception {
         String d = new String(data);
         if (!d.startsWith("$Lock "))
-            return false;
+            return;
         String[] s = d.split(" ");
         if (s.length < 2)
             throw new Exception("failed to parse $Lock command");
         peer.onLockReceived(s[1]);
-        return true;
     }
     
 }
