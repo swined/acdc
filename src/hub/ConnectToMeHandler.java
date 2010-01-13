@@ -1,6 +1,8 @@
 package hub;
 
-class ConnectToMeHandler implements IHubHandler {
+import util.DCReader.IDCEventHandler;
+
+class ConnectToMeHandler implements IDCEventHandler {
 
     private HubConnection hub;
     private IHubEventHandler handler;
@@ -10,7 +12,7 @@ class ConnectToMeHandler implements IHubHandler {
         this.hub = hub;
     }
 
-    public void handleHubCommand(byte[] data) throws Exception {
+    public void handleDCEvent(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$ConnectToMe"))
             return;

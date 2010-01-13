@@ -1,6 +1,8 @@
 package hub;
 
-class LockHandler implements IHubHandler {
+import util.DCReader.IDCEventHandler;
+
+class LockHandler implements IDCEventHandler {
 
     private HubConnection mgr;
 
@@ -8,7 +10,7 @@ class LockHandler implements IHubHandler {
         this.mgr = mgr;
     }
 
-    public void handleHubCommand(byte[] data) throws Exception {
+    public void handleDCEvent(byte[] data) throws Exception {
         String d = new String(data);
         if (!d.startsWith("$Lock ")) {
             return;

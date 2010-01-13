@@ -1,15 +1,15 @@
 package hub;
 
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.channels.SocketChannel;
 import logger.ILogger;
+import util.DCReader;
 import util.KeyGenerator;
 
 public class HubConnection {
 
     private IHubEventHandler handler;
-    private HubReader reader;
+    private DCReader reader;
     private HubWriter writer;
     private String nick;
 
@@ -18,12 +18,13 @@ public class HubConnection {
         logger.debug("connecting to " + host + ":" + port);
         SocketChannel channel = SocketChannel.open(new InetSocketAddress(host, port));
         channel.configureBlocking(false);
-        this.reader = new HubReader(channel, logger);
+        this.reader = new DCReader(channel);
         this.writer = new HubWriter(channel, logger);
         this.nick = nick;
-        reader.registerHandler(new LockHandler(this));
-        reader.registerHandler(new SRHandler(this, handler));
-        reader.registerHandler(new ConnectToMeHandler(this, handler));
+        reader.registerCommandHandler(new CommandLoggingHandler(logger));
+        reader.registerCommandHandler(new LockHandler(this));
+        reader.registerCommandHandler(new SRHandler(this, handler));
+        reader.registerCommandHandler(new ConnectToMeHandler(this, handler));
     }
 
     public void run() throws Exception {
