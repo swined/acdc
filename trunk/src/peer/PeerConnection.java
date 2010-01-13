@@ -37,7 +37,7 @@ public class PeerConnection {
         reader.registerCommandHandler(new MaxedOutHandler(handler, this));
         reader.registerCommandHandler(new SupportsHandler(handler, this));
         reader.registerCommandHandler(new AdcSndHandler(this));
-        reader.registerCommandHandler(new LoggingHandler(logger));
+        reader.registerCommandHandler(new CommandLoggingHandler(logger));
         reader.registerDataHandler(new DataHandler(handler, this));
         reader.registerDataHandler(new DataLoggingHandler(logger));
         handler.onPeerConnected(this);

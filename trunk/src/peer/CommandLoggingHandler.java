@@ -3,11 +3,11 @@ package peer;
 import logger.ILogger;
 import util.DCReader.IDCEventHandler;
 
-public class LoggingHandler implements IDCEventHandler {
+public class CommandLoggingHandler implements IDCEventHandler {
 
     private ILogger logger;
 
-    public LoggingHandler(ILogger logger) {
+    public CommandLoggingHandler(ILogger logger) {
         this.logger = logger;
     }
 
