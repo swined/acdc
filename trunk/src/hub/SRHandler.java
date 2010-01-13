@@ -1,8 +1,9 @@
 package hub;
 
 import util.ArrayUtils;
+import util.DCReader.IDCEventHandler;
 
-class SRHandler implements IHubHandler {
+class SRHandler implements IDCEventHandler {
 
     private HubConnection hub;
     private IHubEventHandler handler;
@@ -12,7 +13,7 @@ class SRHandler implements IHubHandler {
         this.handler = handler;
     }
 
-    public void handleHubCommand(byte[] data) throws Exception {
+    public void handleDCEvent(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$SR"))
             return;
