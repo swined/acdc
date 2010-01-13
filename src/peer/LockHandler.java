@@ -1,6 +1,8 @@
 package peer;
 
-class LockHandler implements IPeerHandler {
+import util.DCReader.IDCEventHandler;
+
+class LockHandler implements IDCEventHandler {
 
     private PeerConnection peer;
 
@@ -8,11 +10,7 @@ class LockHandler implements IPeerHandler {
         this.peer = peer;
     }
 
-    public void handlePeerData(byte[] data)  throws Exception {
-        
-    }
-
-    public void handlePeerCommand(byte[] data) throws Exception {
+    public void handleDCEvent(byte[] data) throws Exception {
         String d = new String(data);
         if (!d.startsWith("$Lock "))
             return;

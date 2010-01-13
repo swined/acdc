@@ -1,20 +1,16 @@
 package peer;
 
-class MyNickHandler implements IPeerHandler {
+import util.DCReader.IDCEventHandler;
+
+class MyNickHandler implements IDCEventHandler {
 
     private PeerConnection conn;
-    private IPeerEventHandler handler;
 
-    public MyNickHandler(IPeerEventHandler handler, PeerConnection conn) {
-        this.handler = handler;
+    public MyNickHandler(PeerConnection conn) {
         this.conn = conn;
     }
 
-    public void handlePeerData(byte[] data) {
-
-    }
-
-    public void handlePeerCommand(byte[] data) throws Exception {
+    public void handleDCEvent(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$MyNick "))
             return;
