@@ -4,12 +4,13 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SocketChannel;
 import util.KeyGenerator;
 import logger.ILogger;
+import util.DCReader;
 
 public class PeerConnection {
 
     private ILogger logger;
     private IPeerEventHandler handler;
-    private PeerReader reader;
+    private DCReader reader;
     private PeerWriter writer;
     private String nick;
 
@@ -27,17 +28,18 @@ public class PeerConnection {
         SocketChannel channel = SocketChannel.open(new InetSocketAddress(ip, port));
         channel.configureBlocking(false);
         writer = new PeerWriter(channel, logger);
-        reader = new PeerReader(channel);
-        reader.registerHandler(new LoggingHandler(logger));
-        reader.registerHandler(new MyNickHandler(handler, this));
-        reader.registerHandler(new LockHandler(this));
-        reader.registerHandler(new DirectionHandler(handler, this));
-        reader.registerHandler(new KeyHandler(handler, this));
-        reader.registerHandler(new ErrorHandler(handler, this));
-        reader.registerHandler(new MaxedOutHandler(handler, this));
-        reader.registerHandler(new DataHandler(handler, this));
-        reader.registerHandler(new SupportsHandler(handler, this));
-        reader.registerHandler(new AdcSndHandler(handler, this));
+        reader = new DCReader(channel);
+        reader.registerCommandHandler(new MyNickHandler(this));
+        reader.registerCommandHandler(new LockHandler(this));
+        reader.registerCommandHandler(new DirectionHandler(this));
+        reader.registerCommandHandler(new KeyHandler(this));
+        reader.registerCommandHandler(new ErrorHandler(handler, this));
+        reader.registerCommandHandler(new MaxedOutHandler(handler, this));
+        reader.registerCommandHandler(new SupportsHandler(handler, this));
+        reader.registerCommandHandler(new AdcSndHandler(this));
+        reader.registerCommandHandler(new LoggingHandler(logger));
+        reader.registerDataHandler(new DataHandler(handler, this));
+        reader.registerDataHandler(new DataLoggingHandler(logger));
         handler.onPeerConnected(this);
     }
 

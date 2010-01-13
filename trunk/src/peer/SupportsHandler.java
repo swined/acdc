@@ -1,6 +1,8 @@
 package peer;
 
-class SupportsHandler implements IPeerHandler {
+import util.DCReader.IDCEventHandler;
+
+class SupportsHandler implements IDCEventHandler {
 
     private PeerConnection conn;
     private IPeerEventHandler handler;
@@ -10,10 +12,7 @@ class SupportsHandler implements IPeerHandler {
         this.conn = conn;
     }
 
-    public void handlePeerData(byte[] data) throws Exception {
-    }
-
-    public void handlePeerCommand(byte[] data) throws Exception {
+    public void handleDCEvent(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$Supports "))
             return;

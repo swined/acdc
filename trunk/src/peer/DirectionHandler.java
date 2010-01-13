@@ -1,20 +1,16 @@
 package peer;
 
-class DirectionHandler implements IPeerHandler {
+import util.DCReader.IDCEventHandler;
+
+class DirectionHandler implements IDCEventHandler {
 
     private PeerConnection conn;
-    private IPeerEventHandler handler;
 
-    public DirectionHandler(IPeerEventHandler handler, PeerConnection conn) {
-        this.handler = handler;
+    public DirectionHandler(PeerConnection conn) {
         this.conn = conn;
     }
 
-    public void handlePeerData(byte[] data) {
-
-    }
-
-    public void handlePeerCommand(byte[] data) throws Exception {
+    public void handleDCEvent(byte[] data) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$Direction "))
             return;
