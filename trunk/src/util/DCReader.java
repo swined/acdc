@@ -17,7 +17,7 @@ public class DCReader {
     private Set<IDCEventHandler> commandHandlers = new HashSet();
     private Set<IDCEventHandler> dataHandlers = new HashSet();
     private int expectData;
-    private ByteBuffer bb = ByteBuffer.allocate(1024*1024);
+    private ByteBuffer bb = ByteBuffer.allocate(1024);
 
     public DCReader(SocketChannel in) {
         this.in = in;
@@ -26,10 +26,9 @@ public class DCReader {
 
     private void readStream() throws Exception {
         bb.clear();
-        int r = in.read(bb);
-        if (r <= 0)
-            return;
-        buffer = ArrayUtils.append(buffer, bb.array(), r);
+        int r = 0;
+        while (0 < (r = in.read(bb)))
+            buffer = ArrayUtils.append(buffer, bb.array(), r);
     }
 
     private byte[] readCommand() throws Exception {
