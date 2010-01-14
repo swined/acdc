@@ -20,7 +20,11 @@ public class ArrayUtils {
     }
 
     public static int indexOf(byte[] a, byte c) {
-        for (int i = 0; i < a.length; i++)
+        return indexOf(a, c, 0, a.length);
+    }
+
+    public static int indexOf(byte[] a, byte c, int s, int l) {
+        for (int i = s; i < s + l; i++)
             if (a[i] == c)
                 return i;
         return -1;
