@@ -2,7 +2,6 @@ package util;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -13,42 +12,37 @@ public class DCReader {
     }
 
     private SocketChannel in;
-    private byte[] buffer = new byte[0];
     private Set<IDCEventHandler> commandHandlers = new HashSet();
     private Set<IDCEventHandler> dataHandlers = new HashSet();
-    private int expectData;
+    private int expectData = 0;
+    private Buffer b = new Buffer();
     private ByteBuffer bb = ByteBuffer.allocate(1024);
 
     public DCReader(SocketChannel in) {
         this.in = in;
-        this.expectData = 0;
     }
 
     private void readStream() throws Exception {
         bb.clear();
         int r = 0;
         while (0 < (r = in.read(bb)))
-            buffer = ArrayUtils.append(buffer, bb.array(), r);
+            b.write(bb, r);
     }
 
     private byte[] readCommand() throws Exception {
         readStream();
-        int ix = ArrayUtils.indexOf(buffer, (byte)0x7C); // |
-        if (ix != -1) {
-            byte[] b = Arrays.copyOfRange(buffer, 0, ix);
-            buffer = Arrays.copyOfRange(buffer, ix + 1, buffer.length);
-            return b;
-        }
+        int ix = ArrayUtils.indexOf(b.data(), (byte)0x7C, b.getOffset(), b.getSize()); // |
+        if (ix != -1)
+            return b.read(ix - b.getOffset(), 1);
         return null;
     }
 
     private byte[] readData() throws Exception {
         readStream();
-        if (buffer.length >= expectData) {
-            byte[] b = Arrays.copyOfRange(buffer, 0, expectData);
-            buffer = Arrays.copyOfRange(buffer, expectData, buffer.length);
+        if (b.getSize() >= expectData) {
+            byte[] r = b.read(expectData, 0);
             expectData = 0;
-            return b;
+            return r;
         }
         return null;
     }
@@ -62,7 +56,7 @@ public class DCReader {
     }
 
     public void expect(int len) {
-        this.expectData = len;
+        expectData = len;
     }
 
     public void read() throws Exception {
