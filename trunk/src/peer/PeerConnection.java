@@ -1,12 +1,14 @@
 package peer;
 
 import java.net.InetSocketAddress;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import util.KeyGenerator;
 import logger.ILogger;
 import util.DCReader;
+import util.ISelectable;
 
-public class PeerConnection {
+public class PeerConnection implements ISelectable {
 
     private ILogger logger;
     private IPeerEventHandler handler;
@@ -20,8 +22,12 @@ public class PeerConnection {
         connect(ip, port);
     }
 
-    public void run() throws Exception {
-        reader.read();
+    public void register(Selector selector) throws Exception {
+        reader.register(selector);
+    }
+
+    public void update() throws Exception {
+        reader.update();
     }
 
     private void connect(String ip, int port) throws Exception {

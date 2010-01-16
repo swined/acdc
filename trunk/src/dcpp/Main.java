@@ -18,6 +18,7 @@ public class Main {
             //"I323N3GKWK3G2YDMQBNIIOKKU522MGQJ4VVTN7Q",
             //"BHBJUM22KY5UJFYIN4NZS37KXCGKQXUG2F23IMI",
             //"DPSYQKMREBMTUKIJJFFVJ725RESYWOYX5FJTM6Q", //readme.txt
+            //"AAAAAAA47KWQFJ7VJUAOB6NNAIANZAZYGUY7GMQ",
             "/tmp/dcget.out",
         };
         ConsoleLogger logger = new ConsoleLogger(false);

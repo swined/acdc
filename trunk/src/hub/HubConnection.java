@@ -1,12 +1,14 @@
 package hub;
 
 import java.net.InetSocketAddress;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import logger.ILogger;
 import util.DCReader;
+import util.ISelectable;
 import util.KeyGenerator;
 
-public class HubConnection {
+public class HubConnection implements ISelectable {
 
     private IHubEventHandler handler;
     private DCReader reader;
@@ -27,8 +29,12 @@ public class HubConnection {
         reader.registerCommandHandler(new ConnectToMeHandler(this, handler));
     }
 
-    public void run() throws Exception {
-        reader.read();
+    public void register(Selector selector) throws Exception {
+        reader.register(selector);
+    }
+
+    public void update() throws Exception {
+        reader.update();
     }
 
     public void onHubConnected(String lock) throws Exception {
