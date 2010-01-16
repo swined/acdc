@@ -35,7 +35,9 @@ public class Chunk {
         return len;
     }
 
-    public void setData(byte[] data) {
+    public void setData(byte[] data) throws Exception {
+        if (data.length != len)
+            throw new Exception("bad buffer length");
         this.data = data;
     }
 

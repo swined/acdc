@@ -17,9 +17,10 @@ public class Main {
             //"VB22K37AAHT65QLUVVS7SYUYURLS75UQEBNYVMI",
             //"I323N3GKWK3G2YDMQBNIIOKKU522MGQJ4VVTN7Q",
             //"BHBJUM22KY5UJFYIN4NZS37KXCGKQXUG2F23IMI",
+            //"DPSYQKMREBMTUKIJJFFVJ725RESYWOYX5FJTM6Q", //readme.txt
             "/tmp/dcget.out",
         };
-        ConsoleLogger logger = new ConsoleLogger(true);
+        ConsoleLogger logger = new ConsoleLogger(false);
         try {
             FileOutputStream file = new FileOutputStream(args[3]);
             DownloadManager m = new DownloadManager(logger, file, args[2]);
