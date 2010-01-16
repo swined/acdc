@@ -14,6 +14,7 @@ import java.util.Set;
 import logger.ILogger;
 import peer.IPeerEventHandler;
 import peer.PeerConnection;
+import sun.nio.ch.PollSelectorProvider;
 import util.ISelectable;
 
 public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
@@ -58,10 +59,11 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
 
     private PeerConnection bestPeer() throws Exception {
         PeerConnection fastest = null;
-        for (PeerConnection peer : peers) {
-            if (isPeerBusy(peer)) {
-                continue;
-            }
+        HashSet<PeerConnection> p = new HashSet(peers);
+        for (Chunk chunk : chunks)
+            if (chunk.getData() == null)
+                p.remove(chunk.getPeer());
+        for (PeerConnection peer : p) {
             if (fastest == null) {
                 fastest = peer;
                 continue;
@@ -138,17 +140,6 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         return null;
     }
 
-    private boolean isPeerBusy(PeerConnection peer) throws Exception {
-        for (Chunk chunk : chunks) {
-            if (chunk.getData() == null) {
-                if (chunk.getPeer().equals(peer)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     private int getNextChunk() {
         Set<Integer> used = new HashSet();
         for (Chunk c : chunks) {
@@ -193,26 +184,28 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         logger.info("" + progress + "% (" + rp + "%) done, " + peers.size() + " peers, " + readyChunksCount() + "/" + chunks.size() + "/" + maxChunks + " chunks");
     }
 
-    private void select(Selector selector) throws Exception {
-        selector.select(selectTimeout);
-        try {
-            for (SelectionKey k : selector.selectedKeys()) {
+    private void select() throws Exception {
+        if (selector.select(selectTimeout) > 0) {
+            try {
+                for (SelectionKey k : selector.selectedKeys()) {
                     if (k.attachment() instanceof ISelectable) {
-                        ISelectable selectable = (ISelectable) (k.attachment());
+                        ISelectable selectable = (ISelectable) k.attachment();
                         try {
                             selectable.update();
                         } catch (Exception e) {
                             if (selectable instanceof PeerConnection) {
                                 logger.error("peer error: " + e.getMessage());
                                 peers.remove(selectable);
+                            } else {
+                                throw e;
                             }
                         }
                     }
+                }
+            } finally {
+                selector.selectedKeys().clear();
             }
-        } finally {
-            selector.selectedKeys().clear();
         }
-
     }
 
     public void download(String host, int port) throws Exception {
@@ -222,7 +215,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         peers = new HashSet();
         Date lastSearch = new Date(0);
         while (toRead == null || toRead != 0) {
-            select(selector);
+            select();
             expireChunks();
             if (toRead != null) {
                 requestChunks();
