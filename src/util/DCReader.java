@@ -13,31 +13,30 @@ public class DCReader implements ISelectable {
 
         void handleDCEvent(byte[] data) throws Exception;
     }
-    private SocketChannel in;
+    private SocketChannel socketChannel;
     private Set<IDCEventHandler> commandHandlers = new HashSet();
     private Set<IDCEventHandler> dataHandlers = new HashSet();
     private int expectData = 0;
     private Buffer b = new Buffer();
     private ByteBuffer bb = ByteBuffer.allocate(1024 * 1024);
 
-    public DCReader(SocketChannel in) {
-        this.in = in;
+    public DCReader(SocketChannel socketChannel) {
+        this.socketChannel = socketChannel;
     }
 
     public void register(Selector selector) throws Exception {
-        in.register(selector, SelectionKey.OP_READ, this);
+        socketChannel.register(selector, SelectionKey.OP_READ, this);
     }
 
     private void readStream() throws Exception {
-        while (true) {
-            bb.clear();
-            int r = in.read(bb);
-            if (0 < r) {
-                b.write(bb.array(), 0, r);
-            } else {
-                return;
-            }
-        }
+        bb.clear();
+        int r = socketChannel.read(bb);
+        if (0 < r)
+            b.write(bb.array(), 0, r);
+//        if (r == 0)
+  //          throw new Exception("nothing to read");
+    //    if (r < 0)
+      //      throw new Exception("read failed");
     }
 
     private byte[] readCommand() throws Exception {
