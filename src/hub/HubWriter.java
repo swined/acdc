@@ -33,7 +33,7 @@ class HubWriter {
     }
 
     public void sendMyInfo(String nick) throws IOException {
-        sendString("$MyINFO $ALL " + nick + " $ $Cable" + new String(new byte[] { 0x08 }) + "$$100000000000$|");
+        sendString("$MyINFO $ALL " + nick + " $ $Cable" + new String(new byte[] { 0x08 }) + "$$0$|");
     }
     
     public void sendTTHSearch(String nick, String tth) throws IOException {

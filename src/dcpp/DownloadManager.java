@@ -4,19 +4,24 @@ import hub.HubConnection;
 import hub.IHubEventHandler;
 import hub.SearchResult;
 import java.io.OutputStream;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import logger.ILogger;
 import peer.IPeerEventHandler;
 import peer.PeerConnection;
+import util.ISelectable;
 
 public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
 
     private final int searchPeriod = 60000;
     private final int chunkSize = 1024 * 1024;
-    private final int chunkTimeout = 3600 * 1000;
+    private final int selectTimeout = 10 * 1000;
+    private final int slowpoke = 10;
 
     private final int maxChunks = 100 * 1024 * 1024 / chunkSize;
     private final String nick = generateNick();
@@ -28,37 +33,63 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private int length = 0;
     private boolean hubConnected = false;
     private Set<Chunk> chunks;
-    private Set<PeerConnection> connecting;
     private Set<PeerConnection> peers;
+    private HashMap<PeerConnection, Long> speed = new HashMap();
+    private Selector selector = Selector.open();
 
-    public DownloadManager(ILogger logger, OutputStream out, String tth) {
+    public DownloadManager(ILogger logger, OutputStream out, String tth) throws Exception {
         this.logger = logger;
         this.out = out;
         this.tth = tth;
     }
 
-    private static void runPeers(Set<PeerConnection> peers, ILogger logger) throws Exception {
-        Set<PeerConnection> delete = new HashSet();
-        Set<PeerConnection> p = new HashSet(peers);
-        for (PeerConnection peer : p) {
-            try {
-                peer.run();
-            } catch (Exception e) {
-                logger.warn("peer error: " + e.getMessage());
-                delete.add(peer);
-            }
-        }
-        for (PeerConnection peer : delete)
-            peers.remove(peer);
+    private long getSpeed(PeerConnection peer) throws Exception {
+        Long spd = speed.get(peer);
+        return spd == null ? Long.MAX_VALUE : spd;
     }
 
-    private void expireChunks() {
+    private int readyChunksCount() {
+        int c = 0;
         for (Chunk chunk : chunks)
-            if (chunk.getData() == null)
-                if (new Date().getTime() - chunk.getCTime() > chunkTimeout / (peers.size() + 1)) {
-                    logger.warn("download timed out, dropping peer");
-                    peers.remove(chunk.getPeer());
-                }
+            if (chunk.getData() != null)
+                c++;
+        return c;
+    }
+
+    private PeerConnection bestPeer() throws Exception {
+        PeerConnection fastest = null;
+        for (PeerConnection peer : peers) {
+            if (isPeerBusy(peer))
+                continue;
+            if (fastest == null) {
+                fastest = peer;
+                continue;
+            }
+            if (getSpeed(fastest) > getSpeed(peer))
+                fastest = peer;
+        }
+        return fastest;
+    }
+
+    private void expireChunks() throws Exception {
+        if (chunks.size() >= maxChunks)
+            if (chunks.size() >= readyChunksCount() + 1)
+        {
+            Chunk chunk = getFirstChunk();
+            if (chunk == null)
+                return;
+            if (chunk.getData() != null)
+                return;
+            PeerConnection best = bestPeer();
+            if (best == null)
+                return;
+            if (best == chunk.getPeer())
+                return;
+            if (getSpeed(best) * slowpoke < getSpeed(chunk.getPeer())) {
+                logger.warn("dropping slow peer");
+                peers.remove(chunk.getPeer());
+            }
+        }
     }
 
     private void cleanChunks() {
@@ -73,17 +104,23 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
 
     private void dumpChunks() throws Exception {
         while (chunks.size() > 0) {
-            Chunk chunk = null;
-            for (Chunk c : chunks)
-                if (c.getStart() == (length - toRead))
-                    if (c.getData() != null)
-                        chunk = c;
+            Chunk chunk = getFirstChunk();
             if (chunk == null)
                 break;
+            if (chunk.getData() == null)
+                return;
             out.write(chunk.getData());
             toRead -= chunk.getData().length;
             chunks.remove(chunk);
+            logger.debug("dumping " + chunk);
         }
+    }
+
+    private Chunk getFirstChunk() {
+        for (Chunk c : chunks)
+            if (c.getStart() == (length - toRead))
+                return c;
+        return null;
     }
 
     private boolean isPeerBusy(PeerConnection peer) throws Exception {
@@ -92,13 +129,6 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
                 if (chunk.getPeer().equals(peer))
                     return true;
         return false;
-    }
-
-    private PeerConnection getPeer() throws Exception {
-        for (PeerConnection peer : peers)
-            if (!isPeerBusy(peer))
-                return peer;
-        return null;
     }
 
     private int getNextChunk() {
@@ -117,7 +147,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
             if (next == -1)
                 return;
             int len = (next + chunkSize > length) ? (length - next) : chunkSize;
-            PeerConnection peer = getPeer();
+            PeerConnection peer = bestPeer();
             if (peer == null)
                 return;
             Chunk chunk = new Chunk(peer, next, len);
@@ -135,19 +165,33 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
                 real += chunk.getLength();
         double progress = Math.round(1000.0 * size / length) / 10.0;
         double rp = Math.round(1000.0 * real / length) / 10.0;
-        logger.info("" + progress + "% (" + rp + "%) done, " + peers.size() + " peers");
+        logger.info("" + progress + "% (" + rp + "%) done, " + peers.size() + " peers, " + readyChunksCount() + "/" + chunks.size() + "/" + maxChunks + " chunks");
+    }
+
+    private void select(Selector selector) throws Exception {
+        selector.select(selectTimeout);
+        for (SelectionKey k : selector.selectedKeys())
+            if (k.attachment() instanceof ISelectable) {
+                ISelectable selectable = (ISelectable)(k.attachment());
+                try {
+                    selectable.update();
+                } catch (Exception e) {
+                    if (selectable instanceof PeerConnection) {
+                        logger.error("peer error: " + e.getMessage());
+                        peers.remove(selectable);
+                    }
+                }
+            }
     }
 
     public void download(String host, int port) throws Exception {
         HubConnection hub = new HubConnection(this, logger, host, port, nick);
+        hub.register(selector);
         chunks = new HashSet();
         peers = new HashSet();
-        connecting = new HashSet();
         Date lastSearch = new Date(0);
         while (toRead == null || toRead != 0) {
-            hub.run();
-            runPeers(peers, logger);
-            runPeers(connecting, logger);
+            select(selector);
             expireChunks();
             cleanChunks();
             if (toRead != null)
@@ -196,7 +240,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     public void onPeerConnectionRequested(HubConnection hub, String ip, int port) throws Exception {
         try {
             logger.info("connecting to " + ip + ":" + port);
-            connecting.add(new PeerConnection(logger, this, ip, port));
+            new PeerConnection(logger, this, ip, port).register(selector);
         } catch (Exception e) {
             logger.warn("connection failed: " + e.getMessage());
         }
@@ -208,7 +252,6 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
 
     public void onHandShakeDone(PeerConnection peer) throws Exception {
         peers.add(peer);
-        connecting.remove(peer);
     }
 
     public void onNoFreeSlots(PeerConnection peer) throws Exception {
@@ -225,6 +268,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
             if (chunk.getPeer() == peer)
                 if (chunk.getData() == null) {
                     chunk.setData(data);
+                    speed.put(peer, new Date().getTime() - chunk.getCTime());
                     dumpChunks();
                     status();
                     return;
