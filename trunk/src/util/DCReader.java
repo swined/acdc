@@ -24,9 +24,9 @@ public class DCReader {
 
     private void readStream() throws Exception {
         bb.clear();
-        int r = 0;
-        while (0 < (r = in.read(bb)))
-            b.write(bb, r);
+        int r = in.read(bb);
+        if (0 < r)
+            b.write(bb.array(), 0, r);
     }
 
     private byte[] readCommand() throws Exception {

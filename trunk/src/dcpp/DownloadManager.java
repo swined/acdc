@@ -150,7 +150,6 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
             runPeers(connecting, logger);
             expireChunks();
             cleanChunks();
-            dumpChunks();
             if (toRead != null)
                 requestChunks();
             if (new Date().getTime() - lastSearch.getTime() > searchPeriod * (peers.size() + 1) && hubConnected) {
@@ -226,6 +225,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
             if (chunk.getPeer() == peer)
                 if (chunk.getData() == null) {
                     chunk.setData(data);
+                    dumpChunks();
                     status();
                     return;
                 }

@@ -1,7 +1,5 @@
 package util;
 
-import java.nio.ByteBuffer;
-
 public class Buffer {
 
     private final int block = 1024 * 1024;
@@ -34,10 +32,10 @@ public class Buffer {
         return r;
     }
 
-    public void write(ByteBuffer data, int len) {
+    public void write(byte[] data, int offset, int len) {
         grow(len);
         for (int i = 0; i < len; i++)
-            this.data[start + length + i] = data.array()[data.arrayOffset() + i];
+            this.data[start + length + i] = data[offset + i];
         length += len;
     }
 
