@@ -16,6 +16,7 @@ public class PeerConnection implements ISelectable {
     private DCReader reader;
     private PeerWriter writer;
     private String nick;
+    private long adcSndOffset = -1;
 
     public PeerConnection(ILogger logger, IPeerEventHandler handler, String ip, int port) throws Exception {
         this.logger = new PeerLogger(logger, ip);
@@ -81,13 +82,18 @@ public class PeerConnection implements ISelectable {
         reader.expect(len);
     }
 
-    public void adcGet(String tth, int from, int len) throws Exception {
+    public void adcGet(String tth, long from, long len) throws Exception {
+        adcSndOffset = from;
         writer.sendAdcGet(tth, from, len);
     }
 
     public void onAdcSndReceived(int from, int len) throws Exception {
         logger.debug("peer offered " + len + " bytes of data");
         reader.expect(len);
+    }
+
+    public void onPeerData(PeerConnection peer, byte[] data) throws Exception {
+        handler.onPeerData(peer, adcSndOffset, data);
     }
 
     public void sendSupports(String features) throws Exception {

@@ -54,7 +54,7 @@ class PeerWriter {
         sendString("$Send|");
     }
 
-    public void sendAdcGet(String tth, int from, int len) throws Exception {
+    public void sendAdcGet(String tth, long from, long len) throws Exception {
         sendString("$ADCGET file TTH/" + tth + " " + from + " " + len + "|");
     }
 
