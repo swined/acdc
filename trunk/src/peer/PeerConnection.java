@@ -92,8 +92,8 @@ public class PeerConnection implements ISelectable {
         reader.expect(len);
     }
 
-    public void onPeerData(PeerConnection peer, byte[] data) throws Exception {
-        handler.onPeerData(peer, adcSndOffset, data);
+    public void onPeerData(PeerConnection peer, byte[] data, int start, int length) throws Exception {
+        handler.onPeerData(peer, adcSndOffset, data, start, length);
     }
 
     public void sendSupports(String features) throws Exception {

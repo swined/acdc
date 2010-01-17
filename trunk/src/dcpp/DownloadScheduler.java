@@ -8,7 +8,7 @@ public class DownloadScheduler {
     private enum ChunkStatus { NONE, LOADING, READY };
 
     private final int chunkSize = 1024 * 1024;
-    private final int maxChunks = 50 * 1024 * 1024 / chunkSize;
+    private final int maxChunks = 10 * 1024 * 1024 / chunkSize;
     private final long fileLength;
 
     private int committedChunks = 0;

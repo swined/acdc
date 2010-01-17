@@ -1,12 +1,13 @@
 package peer;
 
-import java.util.Arrays;
+import util.ArrayUtils;
 import util.DCReader.IDCEventHandler;
 
 class SupportsHandler implements IDCEventHandler {
 
     private PeerConnection conn;
     private IPeerEventHandler handler;
+    private final static byte[] cmd = "$Supports ".getBytes();
 
     public SupportsHandler(IPeerEventHandler handler, PeerConnection conn) {
         this.handler = handler;
@@ -14,9 +15,9 @@ class SupportsHandler implements IDCEventHandler {
     }
 
     public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        String s = new String(Arrays.copyOfRange(data, start, start + length));
-        if (!s.startsWith("$Supports "))
+        if (!ArrayUtils.startsWith(data, start, length, cmd))
             return;
+        String s = new String(data, start, length);
         handler.onSupportsReceived(conn, s.split(" ", 2)[1].split(" "));
     }
 

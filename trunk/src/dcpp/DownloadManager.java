@@ -81,13 +81,13 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     public void download(String host, int port) throws Exception {
         HubConnection hub = new HubConnection(this, logger, host, port, nick);
         hub.register(selector);
-        Date lastSearch = new Date(0);
+        long lastSearch = 0;
         while (scheduler == null || !scheduler.isDone()) {
             select();
             if (scheduler != null)
                 requestChunks();
-            if (new Date().getTime() - lastSearch.getTime() > searchPeriod * (peers.size() + 1) && hubConnected) {
-                lastSearch = new Date();
+            if (System.currentTimeMillis() - lastSearch > searchPeriod * (peers.size() + 1) && hubConnected) {
+                lastSearch = System.currentTimeMillis();
                 logger.info("looking for peers");
                 hub.search(tth);
             }
@@ -151,8 +151,8 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         logger.info("" + committed + "% (" + total + "%) done");
     }
 
-    public void onPeerData(PeerConnection peer, long offset, byte[] data) throws Exception {
-        scheduler.setData(offset, data, 0, data.length);
+    public void onPeerData(PeerConnection peer, long offset, byte[] data, int start, int length) throws Exception {
+        scheduler.setData(offset, data, start, length);
         scheduler.dump(out);
         busyPeers.remove(peer);
         peers.add(peer);

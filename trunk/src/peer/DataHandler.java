@@ -1,6 +1,5 @@
 package peer;
 
-import java.util.Arrays;
 import util.DCReader.IDCEventHandler;
 
 class DataHandler implements IDCEventHandler {
@@ -14,7 +13,7 @@ class DataHandler implements IDCEventHandler {
     }
 
     public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        conn.onPeerData(conn, Arrays.copyOfRange(data, start, start + length));
+        conn.onPeerData(conn, data, start, length);
     }
 
 }

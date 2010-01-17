@@ -1,12 +1,13 @@
 package peer;
 
-import java.util.Arrays;
+import util.ArrayUtils;
 import util.DCReader.IDCEventHandler;
 
 class MaxedOutHandler implements IDCEventHandler {
 
     private PeerConnection conn;
     private IPeerEventHandler handler;
+    private final static byte[] cmd = "$MaxedOut".getBytes();
 
     public MaxedOutHandler(IPeerEventHandler handler, PeerConnection conn) {
         this.handler = handler;
@@ -14,8 +15,7 @@ class MaxedOutHandler implements IDCEventHandler {
     }
 
     public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        String s = new String(Arrays.copyOfRange(data, start, start + length));
-        if (!s.startsWith("$MaxedOut"))
+        if (!ArrayUtils.startsWith(data, start, length, cmd))
             return;
         handler.onNoFreeSlots(conn);
     }
