@@ -24,6 +24,10 @@ public class DCReader implements ISelectable {
         this.socketChannel = socketChannel;
     }
 
+    public SocketChannel getChannel() {
+        return socketChannel;
+    }
+
     public void register(Selector selector) throws Exception {
         socketChannel.register(selector, SelectionKey.OP_READ, this);
     }
@@ -35,8 +39,10 @@ public class DCReader implements ISelectable {
             b.write(bb.array(), 0, r);
         if (r == 0)
             throw new Exception("nothing to read");
-    //    if (r < 0)
-      //      throw new Exception("read failed");
+        if (r < 0) {
+            socketChannel.close();
+            throw new Exception("read failed");
+        }
     }
 
     private byte[] readCommand() throws Exception {

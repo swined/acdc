@@ -14,7 +14,6 @@ import java.util.Set;
 import logger.ILogger;
 import peer.IPeerEventHandler;
 import peer.PeerConnection;
-import sun.nio.ch.PollSelectorProvider;
 import util.ISelectable;
 
 public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
@@ -45,6 +44,24 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private long getSpeed(PeerConnection peer) throws Exception {
         Long spd = speed.get(peer);
         return spd == null ? Long.MAX_VALUE : spd;
+    }
+
+    private void processSelected() throws Exception {
+        for (SelectionKey k : selector.selectedKeys()) {
+            if (k.attachment() instanceof ISelectable) {
+                ISelectable selectable = (ISelectable) k.attachment();
+                try {
+                    selectable.update();
+                } catch (Exception e) {
+                    if (selectable instanceof PeerConnection) {
+                        logger.error("peer error: " + e.getMessage());
+                        peers.remove(selectable);
+                    } else {
+                        throw e;
+                    }
+                }
+            }
+        }
     }
 
     private int readyChunksCount() {
@@ -187,21 +204,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private void select() throws Exception {
         if (selector.select(selectTimeout) > 0) {
             try {
-                for (SelectionKey k : selector.selectedKeys()) {
-                    if (k.attachment() instanceof ISelectable) {
-                        ISelectable selectable = (ISelectable) k.attachment();
-                        try {
-                            selectable.update();
-                        } catch (Exception e) {
-                            if (selectable instanceof PeerConnection) {
-                                logger.error("peer error: " + e.getMessage());
-                                peers.remove(selectable);
-                            } else {
-                                throw e;
-                            }
-                        }
-                    }
-                }
+                processSelected();
             } finally {
                 selector.selectedKeys().clear();
             }

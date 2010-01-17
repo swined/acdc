@@ -1,6 +1,7 @@
 package peer;
 
 import java.net.InetSocketAddress;
+import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import util.KeyGenerator;
@@ -23,7 +24,7 @@ public class PeerConnection implements ISelectable {
     }
 
     public void register(Selector selector) throws Exception {
-        reader.register(selector);
+        reader.getChannel().register(selector, SelectionKey.OP_READ, this);
     }
 
     public void update() throws Exception {
