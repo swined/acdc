@@ -63,8 +63,10 @@ public class DownloadScheduler {
     }
 
     private void shift() {
-        for (int i = 0; i < maxChunks * chunkSize; i++)
-            buffer[i] = buffer[(i + chunkSize) % (maxChunks * chunkSize)];
+        for (int i = 0; i < maxChunks - 1; i++)
+            System.arraycopy(buffer, (i + 1)* chunkSize, buffer, i * chunkSize, chunkSize);
+//        for (int i = 0; i < maxChunks * chunkSize; i++)
+  //          buffer[i] = buffer[(i + chunkSize) % (maxChunks * chunkSize)];
         ChunkStatus zero = status[0];
         for (int i = 0; i < maxChunks; i++)
             status[i] = status[(i + 1) % maxChunks];
