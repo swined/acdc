@@ -78,8 +78,9 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private boolean isPeerBusy(PeerConnection peer) {
         for (Chunk chunk : chunks)
             if (chunk != null)
-                if (chunk.getPeer() == peer)
-                    return true;
+                if (chunk.getData() == null)
+                    if (chunk.getPeer() == peer)
+                        return true;
         return false;
     }
 
