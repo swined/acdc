@@ -2,10 +2,14 @@ package logger;
 
 public class ConsoleLogger implements ILogger{
 
-    private boolean debug = true;
+    private final boolean debug;
 
     public ConsoleLogger(boolean debug) {
         this.debug = debug;
+    }
+
+    public boolean supportsDebug() {
+        return debug;
     }
 
     public void info(String m) {

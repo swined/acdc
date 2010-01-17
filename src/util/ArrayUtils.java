@@ -34,6 +34,19 @@ public class ArrayUtils {
         return split(a, b, 0);
     }
 
+    public static boolean startsWith(byte[] a, byte[] s) {
+        return startsWith(a, 0, a.length, s);
+    }
+
+    public static boolean startsWith(byte[] a, int start, int length, byte[] s) {
+        if (s.length > length)
+            return false;
+        for (int i = 0; i < s.length; i++)
+            if (a[start + i] != s[i])
+                return false;
+        return true;
+    }
+
     public static byte[][] split(byte[] a, byte b, int c) {
         List<byte[]> r = new ArrayList();
         byte[] t = a;

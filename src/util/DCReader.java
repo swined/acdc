@@ -4,8 +4,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DCReader implements ISelectable {
 
@@ -14,8 +14,8 @@ public class DCReader implements ISelectable {
         void handleDCEvent(byte[] data) throws Exception;
     }
     private SocketChannel socketChannel;
-    private Set<IDCEventHandler> commandHandlers = new HashSet();
-    private Set<IDCEventHandler> dataHandlers = new HashSet();
+    private List<IDCEventHandler> commandHandlers = new ArrayList();
+    private List<IDCEventHandler> dataHandlers = new ArrayList();
     private int expectData = 0;
     private Buffer b = new Buffer();
     private ByteBuffer bb = ByteBuffer.allocate(100 * 1024);
@@ -82,17 +82,15 @@ public class DCReader implements ISelectable {
                 if (data == null) {
                     return;
                 }
-                for (IDCEventHandler handler : dataHandlers) {
-                    handler.handleDCEvent(data);
-                }
+                for (int i = 0; i < dataHandlers.size(); i++)
+                    dataHandlers.get(i).handleDCEvent(data);
             } else {
                 byte[] data = readCommand();
                 if (data == null) {
                     return;
                 }
-                for (IDCEventHandler handler : commandHandlers) {
-                    handler.handleDCEvent(data);
-                }
+                for (int i = 0; i < commandHandlers.size(); i++)
+                    commandHandlers.get(i).handleDCEvent(data);
             }
         }
     }

@@ -12,7 +12,8 @@ class CommandLoggingHandler implements IDCEventHandler {
     }
 
     public void handleDCEvent(byte[] data) {
-        logger.debug("recieved command from hub: " + new String(data));
+        if (logger.supportsDebug())
+            logger.debug("recieved command from hub: " + new String(data));
     }
 
 }
