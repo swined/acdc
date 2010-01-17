@@ -6,7 +6,7 @@ public class Buffer {
 
     private int start = 0;
     private int length = 0;
-    private byte[] data = new byte[0];
+    private byte[] data = new byte[2 * block];
 
     public int getOffset() {
         return start;
@@ -49,7 +49,7 @@ public class Buffer {
     }
 
     private void compact() {
-        if (start > block) {
+        if (start > length) {
             for (int i = 0; i < length; i++)
                 data[i] = data[start + i];
             start = 0;

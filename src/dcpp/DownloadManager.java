@@ -30,7 +30,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private Integer toRead = null;
     private int length = 0;
     private boolean hubConnected = false;
-    private Set<Chunk> chunks;
+    private Chunk[] chunks = new Chunk[maxChunks];
     private Set<PeerConnection> peers;
     private HashMap<PeerConnection, Long> speed = new HashMap();
     private Selector selector = Selector.open();
@@ -67,6 +67,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private int readyChunksCount() {
         int c = 0;
         for (Chunk chunk : chunks) {
+            if (chunk != null)
             if (chunk.getData() != null) {
                 c++;
             }
@@ -78,6 +79,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         PeerConnection fastest = null;
         HashSet<PeerConnection> p = new HashSet(peers);
         for (Chunk chunk : chunks)
+            if (chunk != null)
             if (chunk.getData() == null)
                 p.remove(chunk.getPeer());
         for (PeerConnection peer : p) {
@@ -92,26 +94,33 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         return fastest;
     }
 
+    private int activeChunks() {
+        int r = 0;
+        for (Chunk chunk : chunks)
+            if (chunk != null)
+                r++;
+        return r;
+    }
+
     private void expireChunks() throws Exception {
-        if (chunks.size() >= maxChunks) {
-            if (chunks.size() >= readyChunksCount() + 1) {
-                Chunk chunk = getFirstChunk();
-                if (chunk == null) {
+        if (activeChunks() >= maxChunks) {
+            if (activeChunks() >= readyChunksCount() + 1) {
+                if (chunks[0] == null) {
                     return;
                 }
-                if (chunk.getData() != null) {
+                if (chunks[0].getData() != null) {
                     return;
                 }
                 PeerConnection best = bestPeer();
                 if (best == null) {
                     return;
                 }
-                if (best == chunk.getPeer()) {
+                if (best == chunks[0].getPeer()) {
                     return;
                 }
-                if (getSpeed(best) * slowpoke < getSpeed(chunk.getPeer())) {
+                if (getSpeed(best) * slowpoke < getSpeed(chunks[0].getPeer())) {
                     logger.warn("dropping slow peer");
-                    peers.remove(chunk.getPeer());
+                    peers.remove(chunks[0].getPeer());
                     cleanChunks();
                 }
             }
@@ -119,72 +128,50 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     }
 
     private void cleanChunks() {
-        Set<Chunk> delete = new HashSet();
-        for (Chunk chunk : chunks) {
-            if (chunk.getData() == null) {
-                if (!peers.contains(chunk.getPeer())) {
-                    delete.add(chunk);
+        for (int i = 0; i < chunks.length; i++) {
+            if (chunks[i] != null)
+            if (chunks[i].getData() == null) {
+                if (!peers.contains(chunks[i].getPeer())) {
+                    chunks[i] = null;
                 }
             }
-        }
-        for (Chunk chunk : delete) {
-            chunks.remove(chunk);
         }
     }
 
     private void dumpChunks() throws Exception {
-        while (chunks.size() > 0) {
-            Chunk chunk = getFirstChunk();
-            if (chunk == null) {
-                break;
-            }
-            if (chunk.getData() == null) {
+        while (chunks[0] != null) {
+            if (chunks[0].getData() == null)
                 return;
-            }
-            out.write(chunk.getData());
-            toRead -= chunk.getData().length;
-            chunks.remove(chunk);
-            logger.debug("dumping " + chunk);
+            out.write(chunks[0].getData());
+            toRead -= chunks[0].getData().length;
+            logger.debug("dumping " + chunks[0]);
+            chunks[0] = null;
+            for (int i = 0; i < chunks.length - 1; i++)
+                chunks[i] = chunks[i+1];
+            chunks[chunks.length - 1] = null;
         }
-    }
-
-    private Chunk getFirstChunk() {
-        for (Chunk c : chunks) {
-            if (c.getStart() == (length - toRead)) {
-                return c;
-            }
-        }
-        return null;
     }
 
     private int getNextChunk() {
-        Set<Integer> used = new HashSet();
-        for (Chunk c : chunks) {
-            used.add(c.getStart());
-        }
-        for (int i = length - toRead; i < length; i += chunkSize) {
-            if (!used.contains(i)) {
-                return i;
-            }
-        }
+        for (int i = 0; i < chunks.length; i++)
+            if (chunks[i] == null)
+                if (i * chunkSize < toRead)
+                    return i;
         return -1;
     }
 
     private void requestChunks() throws Exception {
-        while (chunks.size() < maxChunks) {
-            int next = getNextChunk();
-            if (next == -1) {
-                return;
-            }
-            int len = (next + chunkSize > length) ? (length - next) : chunkSize;
+        int next = 0;
+        while ((next = getNextChunk()) != -1) {
+            int len = ((next + 1) * chunkSize > toRead) ? length % chunkSize : chunkSize;
             PeerConnection peer = bestPeer();
             if (peer == null) {
                 return;
             }
-            Chunk chunk = new Chunk(peer, next, len);
-            chunks.add(chunk);
-            logger.debug("requesting " + chunk);
-            peer.adcGet(tth, next, len);
+            Chunk chunk = new Chunk(peer, length - toRead + next * chunkSize, len);
+            chunks[next] = chunk;
+            logger.warn("requesting " + chunk);
+            peer.adcGet(tth, next * chunkSize, len);
         }
     }
 
@@ -192,13 +179,14 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         long size = length - toRead;
         long real = size;
         for (Chunk chunk : chunks) {
+            if (chunk != null)
             if (chunk.getData() != null) {
                 real += chunk.getLength();
             }
         }
         double progress = Math.round(1000.0 * size / length) / 10.0;
         double rp = Math.round(1000.0 * real / length) / 10.0;
-        logger.info("" + progress + "% (" + rp + "%) done, " + peers.size() + " peers, " + readyChunksCount() + "/" + chunks.size() + "/" + maxChunks + " chunks");
+        logger.info("" + progress + "% (" + rp + "%) done, " + peers.size() + " peers, " + readyChunksCount() + "/" + activeChunks() + "/" + maxChunks + " chunks");
     }
 
     private void select() throws Exception {
@@ -214,7 +202,6 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     public void download(String host, int port) throws Exception {
         HubConnection hub = new HubConnection(this, logger, host, port, nick);
         hub.register(selector);
-        chunks = new HashSet();
         peers = new HashSet();
         Date lastSearch = new Date(0);
         while (toRead == null || toRead != 0) {
@@ -294,6 +281,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     public void onPeerData(PeerConnection peer, byte[] data) throws Exception {
         logger.debug("got " + data.length + " bytes, " + toRead + " of " + length + " bytes left");
         for (Chunk chunk : chunks) {
+            if (chunk != null)
             if (chunk.getPeer() == peer) {
                 if (chunk.getData() == null) {
                     chunk.setData(data);
