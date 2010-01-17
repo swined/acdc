@@ -16,7 +16,7 @@ class LockHandler implements IDCEventHandler {
     public void handleDCEvent(byte[] data, int start, int length) throws Exception {
         if (!ArrayUtils.startsWith(data, start, length, cmd))
             return;
-        String d = new String(Arrays.copyOfRange(data, start, start + length));
+        String d = new String(data, start, length);
         String[] s = d.split(" ");
         if (s.length < 2) {
             return;
