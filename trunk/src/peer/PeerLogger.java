@@ -12,6 +12,10 @@ class PeerLogger implements ILogger {
         this.name = name;
     }
 
+    public boolean supportsDebug() {
+        return logger.supportsDebug();
+    }
+
     public void debug(String msg) {
         logger.debug("["+ name + "]: " + msg);
     }

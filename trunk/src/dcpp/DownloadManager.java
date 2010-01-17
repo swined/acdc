@@ -75,14 +75,19 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         return c;
     }
 
-    private PeerConnection bestPeer() throws Exception {
-        PeerConnection fastest = null;
-        HashSet<PeerConnection> p = new HashSet(peers);
+    private boolean isPeerBusy(PeerConnection peer) {
         for (Chunk chunk : chunks)
             if (chunk != null)
-            if (chunk.getData() == null)
-                p.remove(chunk.getPeer());
-        for (PeerConnection peer : p) {
+                if (chunk.getPeer() == peer)
+                    return true;
+        return false;
+    }
+
+    private PeerConnection bestPeer() throws Exception {
+        PeerConnection fastest = null;
+        for (PeerConnection peer : peers) {
+            if (isPeerBusy(peer))
+                continue;
             if (fastest == null) {
                 fastest = peer;
                 continue;
@@ -170,7 +175,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
             }
             Chunk chunk = new Chunk(peer, length - toRead + next * chunkSize, len);
             chunks[next] = chunk;
-            logger.warn("requesting " + chunk);
+            logger.debug("requesting " + chunk);
             peer.adcGet(tth, next * chunkSize, len);
         }
     }
