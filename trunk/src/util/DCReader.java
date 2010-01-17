@@ -18,7 +18,7 @@ public class DCReader implements ISelectable {
     private Set<IDCEventHandler> dataHandlers = new HashSet();
     private int expectData = 0;
     private Buffer b = new Buffer();
-    private ByteBuffer bb = ByteBuffer.allocate(1024 * 1024);
+    private ByteBuffer bb = ByteBuffer.allocate(100 * 1024);
 
     public DCReader(SocketChannel socketChannel) {
         this.socketChannel = socketChannel;
