@@ -14,7 +14,7 @@ class DataHandler implements IDCEventHandler {
     }
 
     public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        handler.onPeerData(conn, Arrays.copyOfRange(data, start, length));
+        handler.onPeerData(conn, Arrays.copyOfRange(data, start, start + length));
     }
 
 }

@@ -18,7 +18,7 @@ class ConnectToMeHandler implements IDCEventHandler {
     public void handleDCEvent(byte[] data, int start, int length) throws Exception {
         if (!ArrayUtils.startsWith(data, start, length, cmd))
             return;
-        String s = new String(Arrays.copyOfRange(data, start, length));
+        String s = new String(Arrays.copyOfRange(data, start, start + length));
         String addr = s.split(" ")[2];
         String[] ip = addr.split(":");
         handler.onPeerConnectionRequested(hub, ip[0], Integer.parseInt(ip[1]));

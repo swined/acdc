@@ -47,9 +47,9 @@ public class DCReader implements ISelectable {
     private boolean readCommand() throws Exception {
         int ix = ArrayUtils.indexOf(b.data(), (byte) 0x7C, b.getOffset(), b.getSize()); // |
         if (ix != -1) {
-            byte[] r = b.read(ix - b.getOffset(), 1);
             for (int i = 0; i < commandHandlers.size(); i++)
-                 commandHandlers.get(i).handleDCEvent(r, 0, r.length);
+                 commandHandlers.get(i).handleDCEvent(b.data(), b.getOffset(), ix - b.getOffset());
+            b.markRead(ix - b.getOffset() + 1);
             return true;
         }
         return false;
@@ -57,10 +57,11 @@ public class DCReader implements ISelectable {
 
     private boolean readData() throws Exception {
         if (b.getSize() >= expectData) {
-            byte[] r = b.read(expectData, 0);
+            int len = expectData;
             expectData = 0;
             for (int i = 0; i < dataHandlers.size(); i++)
-                 dataHandlers.get(i).handleDCEvent(r, 0, r.length);
+                 dataHandlers.get(i).handleDCEvent(b.data(), b.getOffset(), len);
+            b.markRead(len);
             return true;
         }
         return false;

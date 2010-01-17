@@ -13,7 +13,7 @@ public class CommandLoggingHandler implements IDCEventHandler {
     }
 
     public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        logger.debug("got command from peer: " + new String(Arrays.copyOfRange(data, start, length)));
+        logger.debug("got command from peer: " + new String(Arrays.copyOfRange(data, start, start + length)));
     }
 
 
