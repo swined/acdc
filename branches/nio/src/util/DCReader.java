@@ -7,7 +7,7 @@ import java.nio.channels.SocketChannel;
 import java.util.HashSet;
 import java.util.Set;
 
-public class DCReader implements ISelectable {
+public class DCReader {
 
     public interface IDCEventHandler {
 
@@ -33,14 +33,13 @@ public class DCReader implements ISelectable {
         int r = socketChannel.read(bb);
         if (0 < r)
             b.write(bb.array(), 0, r);
-//        if (r == 0)
-  //          throw new Exception("nothing to read");
-    //    if (r < 0)
-      //      throw new Exception("read failed");
+        if (r == 0)
+            throw new Exception("nothing to read");
+        if (r < 0)
+            throw new Exception("read failed");
     }
 
     private byte[] readCommand() throws Exception {
-        readStream();
         int ix = ArrayUtils.indexOf(b.data(), (byte) 0x7C, b.getOffset(), b.getSize()); // |
         if (ix != -1) {
             return b.read(ix - b.getOffset(), 1);
@@ -49,7 +48,6 @@ public class DCReader implements ISelectable {
     }
 
     private byte[] readData() throws Exception {
-        readStream();
         if (b.getSize() >= expectData) {
             byte[] r = b.read(expectData, 0);
             expectData = 0;
@@ -71,6 +69,7 @@ public class DCReader implements ISelectable {
     }
 
     public void update() throws Exception {
+        readStream();
         while (true) {
             if (expectData > 0) {
                 byte[] data = readData();
