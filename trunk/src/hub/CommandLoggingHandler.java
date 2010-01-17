@@ -1,5 +1,6 @@
 package hub;
 
+import java.util.Arrays;
 import logger.ILogger;
 import util.DCReader.IDCEventHandler;
 
@@ -11,9 +12,9 @@ class CommandLoggingHandler implements IDCEventHandler {
         this.logger = logger;
     }
 
-    public void handleDCEvent(byte[] data) {
+    public void handleDCEvent(byte[] data, int start, int length) {
         if (logger.supportsDebug())
-            logger.debug("recieved command from hub: " + new String(data));
+            logger.debug("recieved command from hub: " + new String(Arrays.copyOfRange(data, start, length)));
     }
 
 }

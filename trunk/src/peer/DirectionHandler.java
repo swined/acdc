@@ -10,7 +10,7 @@ class DirectionHandler implements IDCEventHandler {
         this.conn = conn;
     }
 
-    public void handleDCEvent(byte[] data) throws Exception {
+    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
         String s = new String(data);
         if (!s.startsWith("$Direction "))
             return;

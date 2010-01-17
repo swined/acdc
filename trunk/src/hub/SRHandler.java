@@ -1,5 +1,6 @@
 package hub;
 
+import java.util.Arrays;
 import util.ArrayUtils;
 import util.DCReader.IDCEventHandler;
 
@@ -14,10 +15,10 @@ class SRHandler implements IDCEventHandler {
         this.handler = handler;
     }
 
-    public void handleDCEvent(byte[] data) throws Exception {
-        if (!ArrayUtils.startsWith(data, cmd))
+    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
+        if (!ArrayUtils.startsWith(data, start, length, cmd))
             return;
-        byte[][] d = ArrayUtils.split(data, (byte)0x20, 3);
+        byte[][] d = ArrayUtils.split(Arrays.copyOfRange(data, start, length), (byte)0x20, 3);
         byte[][] r = ArrayUtils.split(d[2], (byte)0x05);
         byte[][] x = ArrayUtils.split(r[1], (byte)0x20, 2);
         String info = new String(r[1]).split(" ", 2)[1];

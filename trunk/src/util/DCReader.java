@@ -10,8 +10,7 @@ import java.util.List;
 public class DCReader implements ISelectable {
 
     public interface IDCEventHandler {
-
-        void handleDCEvent(byte[] data) throws Exception;
+        void handleDCEvent(byte[] data, int start, int length) throws Exception;
     }
     private SocketChannel socketChannel;
     private List<IDCEventHandler> commandHandlers = new ArrayList();
@@ -45,21 +44,26 @@ public class DCReader implements ISelectable {
         }
     }
 
-    private byte[] readCommand() throws Exception {
+    private boolean readCommand() throws Exception {
         int ix = ArrayUtils.indexOf(b.data(), (byte) 0x7C, b.getOffset(), b.getSize()); // |
         if (ix != -1) {
-            return b.read(ix - b.getOffset(), 1);
+            byte[] r = b.read(ix - b.getOffset(), 1);
+            for (int i = 0; i < commandHandlers.size(); i++)
+                 commandHandlers.get(i).handleDCEvent(r, 0, r.length);
+            return true;
         }
-        return null;
+        return false;
     }
 
-    private byte[] readData() throws Exception {
+    private boolean readData() throws Exception {
         if (b.getSize() >= expectData) {
             byte[] r = b.read(expectData, 0);
             expectData = 0;
-            return r;
+            for (int i = 0; i < dataHandlers.size(); i++)
+                 dataHandlers.get(i).handleDCEvent(r, 0, r.length);
+            return true;
         }
-        return null;
+        return false;
     }
 
     public void registerCommandHandler(IDCEventHandler handler) {
@@ -78,19 +82,11 @@ public class DCReader implements ISelectable {
         readStream();
         while (true) {
             if (expectData > 0) {
-                byte[] data = readData();
-                if (data == null) {
+                if (!readData())
                     return;
-                }
-                for (int i = 0; i < dataHandlers.size(); i++)
-                    dataHandlers.get(i).handleDCEvent(data);
             } else {
-                byte[] data = readCommand();
-                if (data == null) {
+                if (!readCommand())
                     return;
-                }
-                for (int i = 0; i < commandHandlers.size(); i++)
-                    commandHandlers.get(i).handleDCEvent(data);
             }
         }
     }
