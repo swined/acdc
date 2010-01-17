@@ -1,5 +1,6 @@
 package hub;
 
+import java.util.Arrays;
 import util.ArrayUtils;
 import util.DCReader.IDCEventHandler;
 
@@ -12,10 +13,10 @@ class LockHandler implements IDCEventHandler {
         this.mgr = mgr;
     }
 
-    public void handleDCEvent(byte[] data) throws Exception {
-        if (!ArrayUtils.startsWith(data, cmd))
+    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
+        if (!ArrayUtils.startsWith(data, start, length, cmd))
             return;
-        String d = new String(data);
+        String d = new String(Arrays.copyOfRange(data, start, length));
         String[] s = d.split(" ");
         if (s.length < 2) {
             return;

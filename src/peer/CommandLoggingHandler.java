@@ -1,5 +1,6 @@
 package peer;
 
+import java.util.Arrays;
 import logger.ILogger;
 import util.DCReader.IDCEventHandler;
 
@@ -11,8 +12,8 @@ public class CommandLoggingHandler implements IDCEventHandler {
         this.logger = logger;
     }
 
-    public void handleDCEvent(byte[] data) throws Exception {
-        logger.debug("got command from peer: " + new String(data));
+    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
+        logger.debug("got command from peer: " + new String(Arrays.copyOfRange(data, start, length)));
     }
 
 

@@ -1,5 +1,6 @@
 package peer;
 
+import java.util.Arrays;
 import util.DCReader.IDCEventHandler;
 
 class LockHandler implements IDCEventHandler {
@@ -10,8 +11,8 @@ class LockHandler implements IDCEventHandler {
         this.peer = peer;
     }
 
-    public void handleDCEvent(byte[] data) throws Exception {
-        String d = new String(data);
+    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
+        String d = new String(Arrays.copyOfRange(data, start, length));
         if (!d.startsWith("$Lock "))
             return;
         String[] s = d.split(" ");

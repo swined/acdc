@@ -11,8 +11,8 @@ public class DataLoggingHandler implements IDCEventHandler {
         this.logger = logger;
     }
 
-    public void handleDCEvent(byte[] data) throws Exception {
-        logger.debug("got " + data.length + " bytes from peer");
+    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
+        logger.debug("got " + length + " bytes from peer");
     }
 
 
