@@ -22,7 +22,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private final int chunkSize = 1024 * 1024;
     private final int selectTimeout = 10 * 1000;
     private final int slowpoke = 10;
-    private final int maxChunks = 100 * 1024 * 1024 / chunkSize;
+    private final int maxChunks = 50 * 1024 * 1024 / chunkSize;
     private final String nick = generateNick();
     private final ILogger logger;
     private final String tth;
