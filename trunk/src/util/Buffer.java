@@ -20,7 +20,15 @@ public class Buffer {
         return data;
     }
 
-    public byte[] read(int count, int skip) throws Exception {
+    public void markRead(int count) throws Exception {
+        if (count > length)
+            throw new Exception("buffer underflow");
+        length -= count;
+        start += count;
+        compact();
+    }
+
+    private byte[] read(int count, int skip) throws Exception {
         if (count + skip > length)
             throw new Exception("buffer underflow");
         byte[] r = new byte[count];
@@ -32,7 +40,7 @@ public class Buffer {
         return r;
     }
 
-    public void write(byte[] data, int offset, int len) {
+    public void write(byte[] data, int offset, int len) throws Exception {
         grow(len);
         for (int i = 0; i < len; i++)
             this.data[start + length + i] = data[offset + i];

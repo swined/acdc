@@ -12,7 +12,7 @@ class MyNickHandler implements IDCEventHandler {
     }
 
     public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        String s = new String(Arrays.copyOfRange(data, start, length));
+        String s = new String(Arrays.copyOfRange(data, start, start + length));
         if (!s.startsWith("$MyNick "))
             return;
         conn.onPeerNickReceived(s.split(" ")[1]);

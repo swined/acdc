@@ -12,7 +12,7 @@ class LockHandler implements IDCEventHandler {
     }
 
     public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        String d = new String(Arrays.copyOfRange(data, start, length));
+        String d = new String(Arrays.copyOfRange(data, start, start + length));
         if (!d.startsWith("$Lock "))
             return;
         String[] s = d.split(" ");

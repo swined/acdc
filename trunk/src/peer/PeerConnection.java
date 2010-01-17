@@ -38,7 +38,6 @@ public class PeerConnection implements ISelectable {
         reader = new DCReader(channel);
         reader.registerCommandHandler(new MyNickHandler(this));
         reader.registerCommandHandler(new LockHandler(this));
-        reader.registerCommandHandler(new DirectionHandler(this));
         reader.registerCommandHandler(new KeyHandler(this));
         reader.registerCommandHandler(new ErrorHandler(handler, this));
         reader.registerCommandHandler(new MaxedOutHandler(handler, this));
@@ -67,10 +66,6 @@ public class PeerConnection implements ISelectable {
         writer.sendSupports("ADCGet TTHF");
         writer.sendDirection("Download", 42000);
         writer.sendKey(KeyGenerator.generateKey(lock.getBytes()));
-    }
-
-    public void onDirectionReceived(String direction, int i) throws Exception {
-        
     }
 
     public void onPeerNickReceived(String nick) throws Exception {
