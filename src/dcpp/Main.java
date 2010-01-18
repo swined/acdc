@@ -27,9 +27,10 @@ public class Main {
             DownloadManager m = new DownloadManager(logger, file, args[2]);
             m.download(args[0], new Integer(args[1]));
             logger.debug("done");
+            System.exit(0);
         } catch (Exception e) {
             logger.error(e.getMessage());
-            e.printStackTrace();
+            System.exit(1);
         }
     }
 
