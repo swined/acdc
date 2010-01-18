@@ -33,7 +33,7 @@ public class SearchResult {
     }
 
     public int getTotalSlots() {
-        return freeSlots;
+        return totalSlots;
     }
 
 }
