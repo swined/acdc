@@ -85,7 +85,10 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
             select();
             if (scheduler != null)
                 requestChunks();
-            if (System.currentTimeMillis() - lastSearch > searchPeriod * (peers.size() + 1) && hubConnected) {
+            int numPeers = peers.size() + busyPeers.size();
+            if (System.currentTimeMillis() - lastSearch > searchPeriod * (numPeers + 1) && hubConnected) {
+                if (lastSearch != 0 && numPeers == 0)
+                    throw new Exception("search timed out");
                 lastSearch = System.currentTimeMillis();
                 logger.info("looking for peers");
                 hub.search(tth);
