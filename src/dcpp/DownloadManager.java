@@ -109,14 +109,18 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         hubConnected = true;
     }
 
-    public void onSearchResult(HubConnection hub, SearchResult r) throws Exception {
+    public void onSearchResult(HubConnection hub, SearchResult r) {
         if (r.getFreeSlots() < 1) {
             logger.warn("file found, but no free slots");
             return;
         }
         if (scheduler == null)
             scheduler = new DownloadScheduler(r.getLength());
-        hub.requestPeerConnection(r.getNick());
+        try {
+            hub.requestPeerConnection(r.getNick());
+        } catch (Exception e) {
+            logger.warn("connection request failed: " + e.getMessage());
+        }
     }
 
     public void onPeerConnectionRequested(HubConnection hub, String ip, int port) {
