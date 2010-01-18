@@ -11,7 +11,7 @@ public class CommandLoggingHandler implements IDCEventHandler {
         this.logger = logger;
     }
 
-    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
+    public void handleDCEvent(byte[] data, int start, int length) {
         if (logger.supportsDebug())
             logger.debug("got command from peer: " + new String(data, start, length));
     }

@@ -5,7 +5,7 @@ import logger.ConsoleLogger;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         if (args.length == 0)
         args = new String[] {
             "p2p.academ.org",

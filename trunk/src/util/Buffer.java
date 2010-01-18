@@ -40,7 +40,7 @@ public class Buffer {
         return r;
     }
 
-    public void write(byte[] data, int offset, int len) throws Exception {
+    public void write(byte[] data, int offset, int len) {
         grow(len);
         for (int i = 0; i < len; i++)
             this.data[start + length + i] = data[offset + i];
