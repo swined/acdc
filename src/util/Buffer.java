@@ -28,18 +28,6 @@ public class Buffer {
         compact();
     }
 
-    private byte[] read(int count, int skip) throws Exception {
-        if (count + skip > length)
-            throw new Exception("buffer underflow");
-        byte[] r = new byte[count];
-        for (int i = 0; i < count; i++)
-            r[i] = data[start + i];
-        length -= count + skip;
-        start += count + skip;
-        compact();
-        return r;
-    }
-
     public void write(byte[] data, int offset, int len) {
         grow(len);
         for (int i = 0; i < len; i++)
