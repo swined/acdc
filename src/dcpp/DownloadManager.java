@@ -6,7 +6,6 @@ import hub.SearchResult;
 import java.io.OutputStream;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -105,7 +104,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         return r;
     }
 
-    public void onHubConnected(HubConnection hub) throws Exception {
+    public void onHubConnected(HubConnection hub) {
         logger.info("connected to hub");
         hubConnected = true;
     }
@@ -120,7 +119,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         hub.requestPeerConnection(r.getNick());
     }
 
-    public void onPeerConnectionRequested(HubConnection hub, String ip, int port) throws Exception {
+    public void onPeerConnectionRequested(HubConnection hub, String ip, int port) {
         try {
             logger.info("connecting to " + ip + ":" + port);
             new PeerConnection(logger, this, ip, port).register(selector);
@@ -133,7 +132,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         peer.handshake(nick);
     }
 
-    public void onHandShakeDone(PeerConnection peer) throws Exception {
+    public void onHandShakeDone(PeerConnection peer) {
         peers.add(peer);
     }
 
@@ -161,14 +160,11 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
 
     public void onSupportsReceived(PeerConnection peer, String[] features) throws Exception {
         boolean adcGet = false;
-        for (String feature : features) {
-            if (feature.equalsIgnoreCase("ADCGet")) {
+        for (String feature : features)
+            if (feature.equalsIgnoreCase("ADCGet"))
                 adcGet = true;
-            }
-        }
-        if (!adcGet) {
+        if (!adcGet)
             throw new Exception("peer does not support adcget");
-        }
         String supports = "";
         for (String feature : features) {
             supports += feature + " ";

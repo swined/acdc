@@ -69,7 +69,7 @@ public class PeerConnection implements ISelectable {
         writer.sendKey(KeyGenerator.generateKey(lock.getBytes()));
     }
 
-    public void onPeerNickReceived(String nick) throws Exception {
+    public void onPeerNickReceived(String nick) {
         this.nick = nick;
     }
 
@@ -87,7 +87,7 @@ public class PeerConnection implements ISelectable {
         writer.sendAdcGet(tth, from, len);
     }
 
-    public void onAdcSndReceived(int from, int len) throws Exception {
+    public void onAdcSndReceived(int from, int len) {
         logger.debug("peer offered " + len + " bytes of data");
         reader.expect(len);
     }
