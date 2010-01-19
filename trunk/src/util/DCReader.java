@@ -31,6 +31,10 @@ public class DCReader implements ISelectable {
         socketChannel.register(selector, SelectionKey.OP_READ, this);
     }
 
+    public void close() throws Exception {
+	socketChannel.close();
+    }
+
     private void readStream() throws Exception {
         bb.clear();
         int r = socketChannel.read(bb);

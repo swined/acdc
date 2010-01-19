@@ -6,5 +6,5 @@ public interface ISelectable {
 
     void register(Selector selector) throws Exception;
     void update() throws Exception;
-
+    void close() throws Exception;
 }

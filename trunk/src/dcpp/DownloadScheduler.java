@@ -79,7 +79,7 @@ public class DownloadScheduler {
     }
 
     public boolean isDone() {
-        return committedChunks * chunkSize > fileLength;
+        return committedChunks * chunkSize >= fileLength;
     }
 
     public int totalChunks() {

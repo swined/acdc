@@ -45,7 +45,9 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
                 } catch (Exception e) {
                     if (selectable instanceof PeerConnection) {
                         logger.error("peer error: " + e.getMessage());
+			selectable.close();
                         peers.remove(selectable);
+			busyPeers.remove(selectable);
                     } else {
                         throw e;
                     }
@@ -81,6 +83,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         HubConnection hub = new HubConnection(this, logger, host, port, nick);
         hub.register(selector);
         long lastSearch = 0;
+	logger.info("downlading TTH/" + tth);
         while (scheduler == null || !scheduler.isDone()) {
             select();
             if (scheduler != null)
@@ -90,7 +93,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
                 if (lastSearch != 0 && numPeers == 0)
                     throw new Exception("search timed out");
                 lastSearch = System.currentTimeMillis();
-                logger.info("looking for peers (" + tth + ")");
+                logger.info("looking for peers (" + peers.size() + "/" + busyPeers.size() + ")");
                 hub.search(tth);
             }
         }
@@ -154,7 +157,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private void status() {
         double committed = Math.round(1000.0 * scheduler.committedProgress()) / 10.0;
         double total = Math.round(1000.0 * scheduler.totalProgress()) / 10.0;
-        logger.info("" + committed + "% (" + total + "%) done");
+        logger.info("" + committed + "% (" + total + "%) done, " + peers.size() + "/" + busyPeers.size() + " peers");
     }
 
     public void onPeerData(PeerConnection peer, long offset, byte[] data, int start, int length) throws Exception {
