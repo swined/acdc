@@ -90,7 +90,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
                 if (lastSearch != 0 && numPeers == 0)
                     throw new Exception("search timed out");
                 lastSearch = System.currentTimeMillis();
-                logger.info("looking for peers");
+                logger.info("looking for peers (" + tth + ")");
                 hub.search(tth);
             }
         }
