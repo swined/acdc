@@ -36,6 +36,10 @@ public class PeerConnection implements ISelectable {
 	reader.close();
     }
 
+    public long getOffset() {
+	return adcSndOffset;
+    }
+
     private void connect(String ip, int port) throws Exception {
         SocketChannel channel = SocketChannel.open(new InetSocketAddress(ip, port));
         channel.configureBlocking(false);
