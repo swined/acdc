@@ -32,6 +32,10 @@ public class PeerConnection implements ISelectable {
         reader.update();
     }
 
+    public void close() throws Exception {
+	reader.close();
+    }
+
     private void connect(String ip, int port) throws Exception {
         SocketChannel channel = SocketChannel.open(new InetSocketAddress(ip, port));
         channel.configureBlocking(false);
