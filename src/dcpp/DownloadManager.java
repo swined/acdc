@@ -18,8 +18,9 @@ import util.ISelectable;
 
 public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
 
-    private final int searchPeriod = 60000;
-    private final int selectTimeout = 10 * 1000;
+    private final int timeout = 30 * 1000;
+    private final int searchPeriod = 60 * 1000;
+    private final int selectTimeout = 1 * 1000;
     private final String nick = generateNick();
     private final ILogger logger;
     private final String tth;
@@ -29,6 +30,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private Set<PeerConnection> busyPeers = new HashSet();
     private Selector selector = Selector.open();
     private DownloadScheduler scheduler = null;
+    private long lastActivity = 0;
 
     public DownloadManager(ILogger logger, OutputStream out, String tth) throws Exception {
         this.logger = logger;
@@ -83,15 +85,22 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         HubConnection hub = new HubConnection(this, logger, host, port, nick);
         hub.register(selector);
         long lastSearch = 0;
+	lastActivity = System.currentTimeMillis();
 	logger.info("downlading TTH/" + tth);
         while (scheduler == null || !scheduler.isDone()) {
             select();
             if (scheduler != null)
                 requestChunks();
+	    if (System.currentTimeMillis() - lastActivity > timeout) {
+		if (busyPeers.size() == 1) {
+		    for (PeerConnection peer : busyPeers)
+			peer.close();
+		    busyPeers.clear();
+		} else
+		    throw new Exception("timed out");
+	    }
             int numPeers = peers.size() + busyPeers.size();
             if (System.currentTimeMillis() - lastSearch > searchPeriod * (numPeers + 1) && hubConnected) {
-                if (lastSearch != 0 && numPeers == 0)
-                    throw new Exception("search timed out");
                 lastSearch = System.currentTimeMillis();
                 logger.info("looking for peers (" + peers.size() + "/" + busyPeers.size() + ")");
                 hub.search(tth);
@@ -133,6 +142,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         try {
             logger.info("connecting to " + ip + ":" + port);
             new PeerConnection(logger, this, ip, port).register(selector);
+	    lastActivity = System.currentTimeMillis();
         } catch (Exception e) {
             logger.warn("connection failed: " + e.getMessage());
         }
@@ -166,6 +176,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         busyPeers.remove(peer);
         peers.add(peer);
         status();
+	lastActivity = System.currentTimeMillis();
     }
 
     public void onSupportsReceived(PeerConnection peer, String[] features) throws Exception {
