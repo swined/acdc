@@ -37,6 +37,10 @@ public class HubConnection implements ISelectable {
         reader.update();
     }
 
+    public void close() throws Exception {
+        reader.close();
+    }
+
     public void onHubConnected(String lock) throws Exception {
         writer.sendKey(KeyGenerator.generateKey(lock.getBytes()));
         writer.sendValidateNick(nick);
