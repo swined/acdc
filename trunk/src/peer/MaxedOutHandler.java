@@ -1,9 +1,8 @@
 package peer;
 
-import util.ArrayUtils;
-import util.DCReader.IDCEventHandler;
+import util.DCReader.IDCCommandHandler;
 
-class MaxedOutHandler implements IDCEventHandler {
+class MaxedOutHandler implements IDCCommandHandler {
 
     private PeerConnection conn;
     private IPeerEventHandler handler;
@@ -14,9 +13,11 @@ class MaxedOutHandler implements IDCEventHandler {
         this.conn = conn;
     }
 
-    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        if (!ArrayUtils.startsWith(data, start, length, cmd))
-            return;
+    public byte[] getCommandPattern() {
+        return cmd;
+    }
+
+    public void handleDCCommand(byte[] data, int start, int length) throws Exception {
         handler.onNoFreeSlots(conn);
     }
 

@@ -53,7 +53,7 @@ public class PeerConnection implements ISelectable {
         reader.registerCommandHandler(new SupportsHandler(handler, this));
         reader.registerCommandHandler(new AdcSndHandler(this));
         reader.registerCommandHandler(new CommandLoggingHandler(logger));
-        reader.registerDataHandler(new DataHandler(handler, this));
+        reader.registerDataHandler(new DataHandler(this));
         reader.registerDataHandler(new DataLoggingHandler(logger));
         handler.onPeerConnected(this);
     }

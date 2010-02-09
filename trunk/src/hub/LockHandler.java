@@ -1,9 +1,8 @@
 package hub;
 
-import util.ArrayUtils;
-import util.DCReader.IDCEventHandler;
+import util.DCReader.IDCCommandHandler;
 
-class LockHandler implements IDCEventHandler {
+class LockHandler implements IDCCommandHandler {
 
     private HubConnection mgr;
     private final static byte[] cmd = "$Lock ".getBytes();
@@ -12,9 +11,11 @@ class LockHandler implements IDCEventHandler {
         this.mgr = mgr;
     }
 
-    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        if (!ArrayUtils.startsWith(data, start, length, cmd))
-            return;
+    public byte[] getCommandPattern() {
+        return cmd;
+    }
+
+    public void handleDCCommand(byte[] data, int start, int length) throws Exception {
         String d = new String(data, start, length);
         String[] s = d.split(" ");
         if (s.length < 2) {

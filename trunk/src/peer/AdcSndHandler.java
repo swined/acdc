@@ -1,9 +1,8 @@
 package peer;
 
-import util.ArrayUtils;
-import util.DCReader.IDCEventHandler;
+import util.DCReader.IDCCommandHandler;
 
-class AdcSndHandler implements IDCEventHandler {
+class AdcSndHandler implements IDCCommandHandler {
 
     private PeerConnection conn;
     private final static byte[] cmd = "$ADCSND ".getBytes();
@@ -12,9 +11,11 @@ class AdcSndHandler implements IDCEventHandler {
         this.conn = conn;
     }
 
-    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        if (!ArrayUtils.startsWith(data, start, length, cmd))
-            return;
+    public byte[] getCommandPattern() {
+        return cmd;
+    }
+
+    public void handleDCCommand(byte[] data, int start, int length) throws Exception {
         String s = new String(data, start, length);
         String f[] = s.split(" ");
         conn.onAdcSndReceived(new Integer(f[3]), new Integer(f[4]));

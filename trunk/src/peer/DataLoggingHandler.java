@@ -1,9 +1,9 @@
 package peer;
 
 import logger.ILogger;
-import util.DCReader.IDCEventHandler;
+import util.DCReader.IDCDataHandler;
 
-public class DataLoggingHandler implements IDCEventHandler {
+public class DataLoggingHandler implements IDCDataHandler {
 
     private ILogger logger;
 
@@ -11,7 +11,7 @@ public class DataLoggingHandler implements IDCEventHandler {
         this.logger = logger;
     }
 
-    public void handleDCEvent(byte[] data, int start, int length) {
+    public void handleDCData(byte[] data, int start, int length) {
         logger.debug("got " + length + " bytes from peer");
     }
 
