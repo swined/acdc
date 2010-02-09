@@ -1,18 +1,16 @@
 package peer;
 
-import util.DCReader.IDCEventHandler;
+import util.DCReader.IDCDataHandler;
 
-class DataHandler implements IDCEventHandler {
+class DataHandler implements IDCDataHandler {
 
     private PeerConnection conn;
-    private IPeerEventHandler handler;
 
-    public DataHandler(IPeerEventHandler handler, PeerConnection conn) {
-        this.handler = handler;
+    public DataHandler(PeerConnection conn) {
         this.conn = conn;
     }
 
-    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
+    public void handleDCData(byte[] data, int start, int length) throws Exception {
         conn.onPeerData(conn, data, start, length);
     }
 

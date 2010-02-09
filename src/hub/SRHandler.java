@@ -2,9 +2,9 @@ package hub;
 
 import java.util.Arrays;
 import util.ArrayUtils;
-import util.DCReader.IDCEventHandler;
+import util.DCReader.IDCCommandHandler;
 
-class SRHandler implements IDCEventHandler {
+class SRHandler implements IDCCommandHandler {
 
     private HubConnection hub;
     private IHubEventHandler handler;
@@ -15,9 +15,11 @@ class SRHandler implements IDCEventHandler {
         this.handler = handler;
     }
 
-    public void handleDCEvent(byte[] data, int start, int length) throws Exception {
-        if (!ArrayUtils.startsWith(data, start, length, cmd))
-            return;
+    public byte[] getCommandPattern() {
+        return cmd;
+    }
+
+    public void handleDCCommand(byte[] data, int start, int length) throws Exception {
         byte[] t = Arrays.copyOfRange(data, start, start + length);
         byte[][] d = ArrayUtils.split(t, (byte)0x20, 3);
         byte[][] r = ArrayUtils.split(d[2], (byte)0x05);
