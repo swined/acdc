@@ -6,19 +6,6 @@ import java.util.List;
 
 public class ArrayUtils {
 
-    public static byte[] append(byte[] a, byte[] b) {
-        return append(a, b, b.length);
-    }
-
-    public static byte[] append(byte[] a, byte[] b, int l) {
-        byte[] r = new byte[a.length + l];
-        for (int i = 0; i < a.length; i++)
-            r[i] = a[i];
-        for (int i = 0; i < l; i++)
-            r[i + a.length] = b[i];
-        return r;
-    }
-
     public static int indexOf(byte[] a, byte c) {
         return indexOf(a, c, 0, a.length);
     }
@@ -48,7 +35,7 @@ public class ArrayUtils {
     }
 
     public static byte[][] split(byte[] a, byte b, int c) {
-        List<byte[]> r = new ArrayList();
+        List<byte[]> r = new ArrayList<byte[]>();
         byte[] t = a;
         while (indexOf(t, b) != -1) {
             if (c != 0 && r.size() >= c - 1) {
