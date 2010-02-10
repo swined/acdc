@@ -47,9 +47,9 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
                 } catch (Exception e) {
                     if (selectable instanceof PeerConnection) {
                         logger.error("peer error: " + e.getMessage());
-			selectable.close();
+                        selectable.close();
                         peers.remove(selectable);
-			busyPeers.remove(selectable);
+                        busyPeers.remove(selectable);
                     } else {
                         throw e;
                     }
@@ -85,8 +85,8 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         HubConnection hub = new HubConnection(this, logger, host, port, nick);
         hub.register(selector);
         long lastSearch = 0;
-	lastActivity = System.currentTimeMillis();
-	logger.info("downlading TTH/" + tth);
+        lastActivity = System.currentTimeMillis();
+        logger.info("downlading TTH/" + tth);
         while (scheduler == null || !scheduler.isDone()) {
             select();
             if (scheduler != null)
@@ -142,7 +142,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         try {
             logger.info("connecting to " + ip + ":" + port);
             new PeerConnection(logger, this, ip, port).register(selector);
-	    lastActivity = System.currentTimeMillis();
+            lastActivity = System.currentTimeMillis();
         } catch (Exception e) {
             logger.warn("connection failed: " + e.getMessage());
         }
@@ -176,7 +176,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         busyPeers.remove(peer);
         peers.add(peer);
         status();
-	lastActivity = System.currentTimeMillis();
+        lastActivity = System.currentTimeMillis();
     }
 
     public void onSupportsReceived(PeerConnection peer, String[] features) throws Exception {
