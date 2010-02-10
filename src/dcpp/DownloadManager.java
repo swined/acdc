@@ -26,8 +26,8 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     private final String tth;
     private final OutputStream out;
     private boolean hubConnected = false;
-    private List<PeerConnection> peers = new LinkedList();
-    private Set<PeerConnection> busyPeers = new HashSet();
+    private List<PeerConnection> peers = new LinkedList<PeerConnection>();
+    private Set<PeerConnection> busyPeers = new HashSet<PeerConnection>();
     private Selector selector = Selector.open();
     private DownloadScheduler scheduler = null;
     private long lastActivity = 0;

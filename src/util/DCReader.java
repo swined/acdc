@@ -19,8 +19,8 @@ public class DCReader implements ISelectable {
     }
 
     private SocketChannel socketChannel;
-    private List<IDCCommandHandler> commandHandlers = new ArrayList();
-    private List<IDCDataHandler> dataHandlers = new ArrayList();
+    private List<IDCCommandHandler> commandHandlers = new ArrayList<IDCCommandHandler>();
+    private List<IDCDataHandler> dataHandlers = new ArrayList<IDCDataHandler>();
     private int expectData = 0;
     private Buffer b = new Buffer();
     private static ByteBuffer bb = ByteBuffer.allocate(100 * 1024);

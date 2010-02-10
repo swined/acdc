@@ -1,6 +1,5 @@
 package peer;
 
-import util.ArrayUtils;
 import util.DCReader.IDCCommandHandler;
 
 class MyNickHandler implements IDCCommandHandler {
