@@ -1,6 +1,7 @@
 package util;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashMap;
@@ -19,17 +20,18 @@ public class EventDispatcher {
             this.handlers = handlers;
         }
 
-        public Object invoke(Object proxy, Method m, Object[] args) throws Exception {
-            if (m.getExceptionTypes().length > 0)
-                throw new IllegalArgumentException
-                	("invoking methods that can throw exceptions is not supported");
+        public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
             if (m.getReturnType() != void.class)
                 throw new IllegalArgumentException
                 	("invoking methods that return non-void is not supported");
             final Class<?> mc = m.getDeclaringClass();
-            for (Object handler : handlers)
-                if (mc.isAssignableFrom(handler.getClass()))
-                    m.invoke(handler, args);
+            try {
+            	for (Object handler : handlers)
+            		if (mc.isAssignableFrom(handler.getClass()))
+            			m.invoke(handler, args);
+            } catch (InvocationTargetException e) {
+            	throw e.getCause();
+            }
             return m.getDefaultValue();
         }
 
