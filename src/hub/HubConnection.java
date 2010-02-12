@@ -29,14 +29,6 @@ public class HubConnection implements ISelectable {
         reader.registerCommandHandler(new ConnectToMeHandler(this, handler));
     }
 
-    public void register(Selector selector) throws Exception {
-        reader.register(selector);
-    }
-
-    public void update() throws Exception {
-        reader.update();
-    }
-
     public void close() throws Exception {
         reader.close();
     }
@@ -49,12 +41,20 @@ public class HubConnection implements ISelectable {
         handler.onHubConnected(this);
     }
 
-    public void search(String tth) throws Exception {
-        writer.sendTTHSearch(nick, tth);
+    public void register(Selector selector) throws Exception {
+        reader.register(selector);
     }
 
     public void requestPeerConnection(String target) throws Exception {
         writer.sendRevConnectToMe(nick, target);
+    }
+
+    public void search(String tth) throws Exception {
+        writer.sendTTHSearch(nick, tth);
+    }
+
+    public void update() throws Exception {
+        reader.update();
     }
 
 }

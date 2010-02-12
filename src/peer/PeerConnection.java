@@ -24,20 +24,13 @@ public class PeerConnection implements ISelectable {
         connect(ip, port);
     }
 
-    public void register(Selector selector) throws Exception {
-        reader.getChannel().register(selector, SelectionKey.OP_READ, this);
-    }
-
-    public void update() throws Exception {
-        reader.update();
+    public void adcGet(String tth, long from, long len) throws Exception {
+        adcSndOffset = from;
+        writer.sendAdcGet(tth, from, len);
     }
 
     public void close() throws Exception {
-	reader.close();
-    }
-
-    public long getOffset() {
-	return adcSndOffset;
+    	reader.close();
     }
 
     private void connect(String ip, int port) throws Exception {
@@ -58,13 +51,26 @@ public class PeerConnection implements ISelectable {
         handler.onPeerConnected(this);
     }
 
+    public void get(byte[] file, int start) throws Exception {
+        writer.sendGet(file, start);
+    }
+
+    public String getNick() {
+        return nick;
+    }
+
+    public long getOffset() {
+    	return adcSndOffset;
+    }
+
     public void handshake(String nick) throws Exception {
         writer.sendMyNick(nick);
         writer.sendLock("EXTENDEDPROTOCOL_some_random_lock", "kio_dcpp");
     }
 
-    public void get(byte[] file, int start) throws Exception {
-        writer.sendGet(file, start);
+    public void onAdcSndReceived(int from, int len) {
+        logger.debug("peer offered " + len + " bytes of data");
+        reader.expect(len);
     }
 
     public void onKeyReceived() throws Exception {
@@ -77,12 +83,17 @@ public class PeerConnection implements ISelectable {
         writer.sendKey(KeyGenerator.generateKey(lock.getBytes()));
     }
 
+    public void onPeerData(PeerConnection peer, byte[] data, int start, int length) throws Exception {
+        handler.onPeerData(peer, adcSndOffset, data, start, length);
+        adcSndOffset = -1;
+    }
+
     public void onPeerNickReceived(String nick) {
         this.nick = nick;
     }
 
-    public String getNick() {
-        return nick;
+    public void register(Selector selector) throws Exception {
+        reader.getChannel().register(selector, SelectionKey.OP_READ, this);
     }
 
     public void send(int len) throws Exception {
@@ -90,22 +101,12 @@ public class PeerConnection implements ISelectable {
         reader.expect(len);
     }
 
-    public void adcGet(String tth, long from, long len) throws Exception {
-        adcSndOffset = from;
-        writer.sendAdcGet(tth, from, len);
-    }
-
-    public void onAdcSndReceived(int from, int len) {
-        logger.debug("peer offered " + len + " bytes of data");
-        reader.expect(len);
-    }
-
-    public void onPeerData(PeerConnection peer, byte[] data, int start, int length) throws Exception {
-        handler.onPeerData(peer, adcSndOffset, data, start, length);
-    }
-
     public void sendSupports(String features) throws Exception {
         writer.sendSupports(features);
+    }
+
+    public void update() throws Exception {
+        reader.update();
     }
 
 }

@@ -16,20 +16,20 @@ public class SearchResult {
         this.totalSlots = totalSlots;
     }
 
-    public String getNick() {
-        return nick;
-    }
-
     public byte[] getFile() {
         return file;
+    }
+
+    public int getFreeSlots() {
+        return freeSlots;
     }
 
     public int getLength() {
         return length;
     }
 
-    public int getFreeSlots() {
-        return freeSlots;
+    public String getNick() {
+        return nick;
     }
 
     public int getTotalSlots() {
