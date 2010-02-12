@@ -30,7 +30,7 @@ public class DCReader implements ISelectable {
     }
 
     public void close() throws Exception {
-	socketChannel.close();
+    	socketChannel.close();
     }
 
     public void expect(int len) {
