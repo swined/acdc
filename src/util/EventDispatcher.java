@@ -22,7 +22,7 @@ public class EventDispatcher {
 
         public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
             if (m.getReturnType() != void.class)
-                throw new IllegalArgumentException
+                throw new UnsupportedOperationException
                 	("invoking methods that return non-void is not supported");
             final Class<?> mc = m.getDeclaringClass();
             try {
