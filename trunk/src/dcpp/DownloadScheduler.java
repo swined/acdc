@@ -20,6 +20,27 @@ public class DownloadScheduler {
         Arrays.fill(status, ChunkStatus.NONE);
     }
 
+    public void cancelDownload(long offset) throws Exception {
+        int chunk = getChunkByOffset(offset);
+        if (status[chunk] != ChunkStatus.LOADING)
+            throw new Exception("the chunk is not loading");
+        status[chunk] = ChunkStatus.NONE;
+    }
+
+    public double committedProgress() {
+        return (double)(committedChunks) / (double)totalChunks();
+    }
+
+    public void dump(OutputStream stream) throws Exception {
+        while (status[0] == ChunkStatus.READY) {
+            long offset = committedChunks * chunkSize;
+            stream.write(buffer, 0, getChunkLength(offset));
+            status[0] = ChunkStatus.NONE;
+            committedChunks++;
+            shift();
+        }
+    }
+
     public long getChunk() {
         for (int i = 0; i < maxChunks; i++) {
             long offset = (i + committedChunks) * chunkSize;
@@ -30,7 +51,7 @@ public class DownloadScheduler {
         }
         return -1;
     }
-
+    
     private int getChunkByOffset(long offset) throws Exception {
         if (offset % chunkSize != 0)
             throw new Exception("chunk cannot start at " + offset);
@@ -40,15 +61,27 @@ public class DownloadScheduler {
         return chunk;
     }
 
+    public int getChunkLength(long offset) {
+        return (int)((offset + chunkSize > fileLength) ? (fileLength - offset) : chunkSize);
+    }
+
+    public boolean isDone() {
+        return committedChunks * chunkSize >= fileLength;
+    }
+
+    public int loadedChunks() {
+        int r = 0;
+        for (int i = 0; i < maxChunks; i++)
+            if (status[i] == ChunkStatus.READY)
+                r++;
+        return r;
+    }
+
     public void markAsLoading(long offset) throws Exception {
         int chunk = getChunkByOffset(offset);
         if (status[chunk] != ChunkStatus.NONE)
             throw new Exception("the chunk cannot be loaded");
         status[chunk] = ChunkStatus.LOADING;
-    }
-
-    public int getChunkLength(long offset) {
-        return (int)((offset + chunkSize > fileLength) ? (fileLength - offset) : chunkSize);
     }
 
     public void setData(long offset, byte[] data, int start, int length) throws Exception {
@@ -68,34 +101,8 @@ public class DownloadScheduler {
         status[maxChunks - 1] = ChunkStatus.NONE;
     }
 
-    public void dump(OutputStream stream) throws Exception {
-        while (status[0] == ChunkStatus.READY) {
-            long offset = committedChunks * chunkSize;
-            stream.write(buffer, 0, getChunkLength(offset));
-            status[0] = ChunkStatus.NONE;
-            committedChunks++;
-            shift();
-        }
-    }
-
-    public boolean isDone() {
-        return committedChunks * chunkSize >= fileLength;
-    }
-
     public int totalChunks() {
         return (int)(fileLength / chunkSize + ((fileLength % chunkSize == 0) ? 0 : 1));
-    }
-
-    public int loadedChunks() {
-        int r = 0;
-        for (int i = 0; i < maxChunks; i++)
-            if (status[i] == ChunkStatus.READY)
-                r++;
-        return r;
-    }
-
-    public double committedProgress() {
-        return (double)(committedChunks) / (double)totalChunks();
     }
 
     public double totalProgress() {

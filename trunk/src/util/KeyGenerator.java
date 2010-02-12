@@ -2,6 +2,15 @@ package util;
 
 public class KeyGenerator {
 
+    private static String dcnEncode(String lockstring) {
+        for (int i : new int[]{0, 5, 36, 96, 124, 126}) {
+            String paddedDecimal = String.format("%03d", i);
+            String paddedHex = String.format("%02x", i);
+            lockstring = lockstring.replaceAll("\\x" + paddedHex, "/%DCN" + paddedDecimal + "%/");
+        }
+        return lockstring;
+    }
+
     public static String generateKey(byte[] lock) {
         byte[] key = new byte[lock.length];
         for (int i = 1; i < lock.length; i++) {
@@ -13,15 +22,6 @@ public class KeyGenerator {
         }
         return dcnEncode(new String(key));
 
-    }
-
-    private static String dcnEncode(String lockstring) {
-        for (int i : new int[]{0, 5, 36, 96, 124, 126}) {
-            String paddedDecimal = String.format("%03d", i);
-            String paddedHex = String.format("%02x", i);
-            lockstring = lockstring.replaceAll("\\x" + paddedHex, "/%DCN" + paddedDecimal + "%/");
-        }
-        return lockstring;
     }
 
 }

@@ -8,6 +8,18 @@ public class Buffer {
     private int length = 0;
     private byte[] data = new byte[2 * block];
 
+    private void compact() {
+        if (start > length) {
+            for (int i = 0; i < length; i++)
+                data[i] = data[start + i];
+            start = 0;
+        }
+    }
+
+    public byte[] data() {
+        return data;
+    }
+
     public int getOffset() {
         return start;
     }
@@ -16,8 +28,13 @@ public class Buffer {
         return length;
     }
 
-    public byte[] data() {
-        return data;
+    private void grow(int size) {
+        if (size + start + length > data.length) {
+            byte[] r = new byte[data.length + size / block + block];
+            for (int i = 0; i < data.length; i++)
+                r[i] = data[i];
+            data = r;
+        }
     }
 
     public void markRead(int count) throws Exception {
@@ -33,23 +50,6 @@ public class Buffer {
         for (int i = 0; i < len; i++)
             this.data[start + length + i] = data[offset + i];
         length += len;
-    }
-
-    private void grow(int size) {
-        if (size + start + length > data.length) {
-            byte[] r = new byte[data.length + size / block + block];
-            for (int i = 0; i < data.length; i++)
-                r[i] = data[i];
-            data = r;
-        }
-    }
-
-    private void compact() {
-        if (start > length) {
-            for (int i = 0; i < length; i++)
-                data[i] = data[start + i];
-            start = 0;
-        }
     }
 
 }

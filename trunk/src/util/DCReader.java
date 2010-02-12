@@ -9,13 +9,13 @@ import java.util.List;
 
 public class DCReader implements ISelectable {
 
-    public interface IDCDataHandler {
-        void handleDCData(byte[] data, int start, int length) throws Exception;
-    }
-
     public interface IDCCommandHandler {
         byte[] getCommandPattern();
         void handleDCCommand(byte[] data, int start, int length) throws Exception;
+    }
+
+    public interface IDCDataHandler {
+        void handleDCData(byte[] data, int start, int length) throws Exception;
     }
 
     private SocketChannel socketChannel;
@@ -29,29 +29,16 @@ public class DCReader implements ISelectable {
         this.socketChannel = socketChannel;
     }
 
-    public SocketChannel getChannel() {
-        return socketChannel;
-    }
-
-    public void register(Selector selector) throws Exception {
-        socketChannel.register(selector, SelectionKey.OP_READ, this);
-    }
-
     public void close() throws Exception {
 	socketChannel.close();
     }
 
-    private void readStream() throws Exception {
-        bb.clear();
-        int r = socketChannel.read(bb);
-        if (0 < r)
-            b.write(bb.array(), 0, r);
-        if (r == 0)
-            throw new Exception("nothing to read");
-        if (r < 0) {
-            socketChannel.close();
-            throw new Exception("read failed");
-        }
+    public void expect(int len) {
+        expectData = len;
+    }
+
+    public SocketChannel getChannel() {
+        return socketChannel;
     }
 
     private boolean readCommand() throws Exception {
@@ -80,16 +67,29 @@ public class DCReader implements ISelectable {
         return false;
     }
 
+    private void readStream() throws Exception {
+        bb.clear();
+        int r = socketChannel.read(bb);
+        if (0 < r)
+            b.write(bb.array(), 0, r);
+        if (r == 0)
+            throw new Exception("nothing to read");
+        if (r < 0) {
+            socketChannel.close();
+            throw new Exception("read failed");
+        }
+    }
+
+    public void register(Selector selector) throws Exception {
+        socketChannel.register(selector, SelectionKey.OP_READ, this);
+    }
+
     public void registerCommandHandler(IDCCommandHandler handler) {
         commandHandlers.add(handler);
     }
 
     public void registerDataHandler(IDCDataHandler handler) {
         dataHandlers.add(handler);
-    }
-
-    public void expect(int len) {
-        expectData = len;
     }
 
     public void update() throws Exception {

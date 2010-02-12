@@ -15,21 +15,17 @@ class PeerWriter {
         this.logger = logger;
     }
 
+    public void sendAdcGet(String tth, long from, long len) throws Exception {
+        sendString("$ADCGET file TTH/" + tth + " " + from + " " + len + "|");
+    }
+
     private void sendBytes(byte[] s) throws IOException {
         out.write(ByteBuffer.wrap(s));
         logger.debug("sent string to peer: " + new String(s));
     }
 
-    private void sendString(String s) throws IOException {
-        sendBytes(s.getBytes());
-    }
-
-    public void sendMyNick(String nick) throws Exception {
-        sendString("$MyNick " + nick + "|");
-    }
-
-    public void sendLock(String lock, String pk) throws Exception {
-        sendString("$Lock " + lock + " Pk=" + pk + "|");
+    public void sendDirection(String direction, int a) throws Exception {
+        sendString("$Direction " + direction + " " + a + "|");
     }
 
     public void sendGet(byte[] file, int start) throws Exception {
@@ -42,20 +38,24 @@ class PeerWriter {
         sendString("$Key " + key + "|");
     }
 
-    public void sendSupports(String features) throws IOException {
-        sendString("$Supports " + features + "|");
+    public void sendLock(String lock, String pk) throws Exception {
+        sendString("$Lock " + lock + " Pk=" + pk + "|");
     }
 
-    public void sendDirection(String direction, int a) throws Exception {
-        sendString("$Direction " + direction + " " + a + "|");
+    public void sendMyNick(String nick) throws Exception {
+        sendString("$MyNick " + nick + "|");
     }
 
     public void sendSend() throws Exception {
         sendString("$Send|");
     }
 
-    public void sendAdcGet(String tth, long from, long len) throws Exception {
-        sendString("$ADCGET file TTH/" + tth + " " + from + " " + len + "|");
+    private void sendString(String s) throws IOException {
+        sendBytes(s.getBytes());
+    }
+
+    public void sendSupports(String features) throws IOException {
+        sendString("$Supports " + features + "|");
     }
 
 }
