@@ -37,7 +37,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     }
     
     public interface ISelectLoopEventHandler {
-    	void onSelectLoop(DownloadManager manager);
+    	void onSelectLoop(DownloadManager manager) throws Exception;
     }
     
     public DownloadManager(ILogger logger, OutputStream out, String tth) throws Exception {

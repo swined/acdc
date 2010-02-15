@@ -21,18 +21,16 @@ public class EventDispatcher {
         }
 
         public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
-            if (m.getReturnType() != void.class)
-                throw new UnsupportedOperationException
-                	("invoking methods that return non-void is not supported");
+        	Object result = m.getDefaultValue(); 
             final Class<?> mc = m.getDeclaringClass();
             try {
             	for (Object handler : handlers)
             		if (mc.isAssignableFrom(handler.getClass()))
-            			m.invoke(handler, args);
+            			result = m.invoke(handler, args);
             } catch (InvocationTargetException e) {
             	throw e.getCause();
             }
-            return m.getDefaultValue();
+            return result;
         }
 
     }
