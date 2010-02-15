@@ -22,15 +22,11 @@ public class Search implements IHubConnectedEventHandler, ISelectLoopEventHandle
 		this.hub = hub;		
 	}
 	
-	public void onSelectLoop(DownloadManager manager) {
+	public void onSelectLoop(DownloadManager manager) throws Exception {
         if (System.currentTimeMillis() - lastSearch > searchPeriod && hub != null) {
             lastSearch = System.currentTimeMillis();
             logger.info("looking for peers");
-            try {
-            	hub.search(tth);
-            } catch (Exception e) {
-            	logger.warn("search failed: " + e.getMessage());
-            }
+           	hub.search(tth);
         }
 	}
 	
