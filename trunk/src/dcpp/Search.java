@@ -3,9 +3,9 @@ package dcpp;
 import hub.HubConnection;
 import logger.ILogger;
 import dcpp.DownloadManager.IHubConnectedEventHandler;
-import dcpp.DownloadManager.ISelectLoopEventHandler;
+import dcpp.DownloadManager.IMainLoopEventHandler;
 
-public class Search implements IHubConnectedEventHandler, ISelectLoopEventHandler {
+public class Search implements IHubConnectedEventHandler, IMainLoopEventHandler {
 
 	private final ILogger logger;
 	private final String tth;
@@ -22,7 +22,7 @@ public class Search implements IHubConnectedEventHandler, ISelectLoopEventHandle
 		this.hub = hub;		
 	}
 	
-	public void onSelectLoop(DownloadManager manager) throws Exception {
+	public void onMainLoop(DownloadManager manager) throws Exception {
         if (System.currentTimeMillis() - lastSearch > searchPeriod && hub != null) {
             lastSearch = System.currentTimeMillis();
             logger.info("looking for peers");
