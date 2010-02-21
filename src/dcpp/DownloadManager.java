@@ -36,8 +36,8 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     	void onHubConnected(DownloadManager manager, HubConnection hub);
     }
     
-    public interface ISelectLoopEventHandler {
-    	void onSelectLoop(DownloadManager manager) throws Exception;
+    public interface IMainLoopEventHandler {
+    	void onMainLoop(DownloadManager manager) throws Exception;
     }
     
     public DownloadManager(ILogger logger, OutputStream out, String tth) throws Exception {
@@ -53,7 +53,7 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
         logger.info("downlading TTH/" + tth);
         while (scheduler == null || !scheduler.isDone()) {
             select();
-            dispatcher.invoke(ISelectLoopEventHandler.class).onSelectLoop(this);
+            dispatcher.invoke(IMainLoopEventHandler.class).onMainLoop(this);
             if (scheduler != null)
                 requestChunks();
         }
@@ -77,7 +77,6 @@ public class DownloadManager implements IHubEventHandler, IPeerEventHandler {
     public void onHubConnected(HubConnection hub) {
         logger.info("connected to hub");
         dispatcher.invoke(IHubConnectedEventHandler.class).onHubConnected(this, hub);
-        
     }
 
     public void onNoFreeSlots(PeerConnection peer) throws Exception {
